@@ -35,6 +35,7 @@ const OPERATIONS = {
   createStrategy: { risk: 'write' },
   updateStrategy: { risk: 'write' },
   searchChannels: { risk: 'read', note: 'limite 30/min' },
+  discoverLives: { risk: 'read', note: 'até 6 canais ao vivo, favorece português' },
   listMonitors: { risk: 'read' },
   getMonitor: { risk: 'read' },
   createMonitor: { risk: 'quota', quotaBucket: 'monitors', requiresRights: true, note: 'limite 10/min' },

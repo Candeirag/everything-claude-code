@@ -1220,6 +1220,24 @@
       }
     },
     {
+      "name": "discoverLives",
+      "method": "GET",
+      "path": "/monitors/discover",
+      "summary": "Channels live right now",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "note": "até 6 canais ao vivo, favorece português",
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    {
       "name": "downloadClipSubtitles",
       "method": "GET",
       "path": "/videos/{videoId}/submissions/{submissionId}/clips/{clipId}/subtitles",

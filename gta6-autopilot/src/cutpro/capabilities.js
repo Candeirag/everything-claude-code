@@ -22,6 +22,7 @@ export const CAPABILITIES = {
 
   'source.analyze': { tool: 'analyzeVideo', map: ({ url }) => ({ body: { url } }) },
   'source.searchChannels': { tool: 'searchChannels', map: ({ platform, query }) => ({ platform, q: query }) },
+  'source.discoverLives': { tool: 'discoverLives', map: () => ({}) },
 
   'monitor.list': { tool: 'listMonitors', map: ({ type } = {}) => omitUndefined({ type }) },
   'monitor.create': {

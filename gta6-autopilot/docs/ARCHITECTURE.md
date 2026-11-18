@@ -55,6 +55,25 @@ Decisão do dono do projeto após a análise em `docs/CUTPRO_API_INTEGRATION.md`
 - Próximo componente: `CutProAdapter`, com as mesmas proteções do adaptador ViceScale (validação, idempotência, dry-run de publicação, direitos de uso, emergência, cotas, auditoria). Também respeita `Retry-After` e os códigos `{ code, extra }`.
 - Consequência: a ponte via sessão Claude deixa de ser caminho crítico. Só as funções de apoio da ViceScale dependem dela.
 
+### D8 — Política de direitos para cortes de streamers (2026-11-18)
+Decisão do dono do projeto: cortar streamers famosos de GTA 6 (Twitch, Kick, YouTube), sempre creditando o @.
+
+Cada streamer entra num cadastro com o nível de permissão e a evidência:
+| Nível | Publicação |
+|---|---|
+| `explicit_permission` (autorização por escrito) | autônoma |
+| `public_clip_policy` (bio/painel libera cortes; link guardado) | autônoma |
+| `clip_campaign` (campanha/campeonato de cortes) | autônoma |
+| `credit_only` (sem permissão conhecida) | **autônoma, por decisão e risco assumidos pelo dono**, avisado de que crédito não é autorização legal |
+| `blocked` (pediu remoção ou proíbe cortes) | nunca |
+
+Travas obrigatórias:
+- @ do streamer no vídeo **e** na legenda de todo post;
+- primeiro pedido de remoção ou denúncia move o streamer para `blocked` e cancela os posts agendados dele;
+- cada corte leva título e contexto próprios (valor editorial; também pesa para monetização).
+
+O `context.rightsCleared` dos adaptadores passa a vir desse cadastro (Fase 2).
+
 ## Estado por fase
 
 | Fase | Status | Critério |
