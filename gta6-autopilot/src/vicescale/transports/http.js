@@ -4,7 +4,7 @@
 // (VICESCALE_MCP_URL / VICESCALE_MCP_TOKEN). Nenhuma URL é presumida aqui.
 // O token é lido do ambiente, enviado só no header Authorization e nunca logado.
 
-import { AuthError, TransientError, ToolError, ViceScaleError } from '../errors.js';
+import { AuthError, TransientError, ToolError, ViceScaleError } from '../../core/errors.js';
 
 const PROTOCOL_VERSION = '2025-06-18';
 

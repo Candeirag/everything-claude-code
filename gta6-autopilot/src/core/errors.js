@@ -1,4 +1,5 @@
-// Erros tipados do adaptador. `retryable` diz se o adaptador pode repetir a
+// Erros tipados dos adaptadores (ViceScale, Cut.Pro). ViceScaleError é a base
+// histórica de todos. `retryable` diz se o adaptador pode repetir a
 // chamada com segurança; `alert` sinaliza que o painel deve exibir alerta.
 
 export class ViceScaleError extends Error {
@@ -41,8 +42,18 @@ export class AuthError extends ViceScaleError {
 }
 
 export class TransientError extends ViceScaleError {
-  constructor(message, cause) {
-    super(message, { code: 'TRANSIENT', retryable: true, cause });
+  constructor(message, cause, { retryAfterMs = 0, code = 'TRANSIENT' } = {}) {
+    super(message, { code, retryable: true, cause });
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
+/** Erro de negócio devolvido por uma API REST ({ code, extra }). Não é repetido automaticamente. */
+export class ApiError extends ViceScaleError {
+  constructor(operation, status, code, extra) {
+    super(`${operation} falhou (HTTP ${status}, ${code})`, { code, details: extra });
+    this.status = status;
+    this.extra = extra;
   }
 }
 

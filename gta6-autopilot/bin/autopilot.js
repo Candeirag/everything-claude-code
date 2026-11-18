@@ -3,7 +3,7 @@
 
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { createAdapter } from '../src/config.js';
+import { createAdapter, createCutProAdapter } from '../src/config.js';
 
 const HELP = `Uso: autopilot <comando> [opções]
 
@@ -17,6 +17,10 @@ ViceScale
   operations [--state S]       Últimas operações
   audit [--limit N]            Últimos eventos de auditoria
   emergency-stop on|off        Suspende/retoma TODAS as publicações
+
+Cut.Pro (plataforma principal; exige CUTPRO_API_KEY)
+  cutpro status | health | capabilities | catalog
+  cutpro run <capacidade> [--input JSON] [--key IDEMPOTENCIA] [--rights-cleared] [--confirm-destructive]
 
 Ponte Claude (usado pelo comando /vicescale-worker numa sessão com o conector ViceScale)
   bridge:claim                 Próxima operação enfileirada (JSON) e marca como dispatched
@@ -39,11 +43,14 @@ const main = async () => {
       'text-file': { type: 'string' },
       error: { type: 'string' },
       auth: { type: 'boolean' },
+      'confirm-destructive': { type: 'boolean' },
       help: { type: 'boolean', short: 'h' },
     },
   });
   const [command, arg] = positionals;
   if (!command || values.help) return print(HELP);
+
+  if (command === 'cutpro') return runCutPro(positionals.slice(1), values);
 
   const { adapter, store } = createAdapter();
   try {
@@ -88,6 +95,35 @@ const main = async () => {
         if (!arg || !values.error) throw new Error('Use: bridge:fail <id> --error "mensagem" [--auth]');
         const op = adapter.completeBridgedOperation(arg, { error: values.error, authError: values.auth === true });
         return print({ id: op.id, state: op.state });
+      }
+      default:
+        print(HELP);
+        process.exitCode = 1;
+    }
+  } finally {
+    store.close();
+  }
+};
+
+const runCutPro = async ([sub, arg], values) => {
+  const { adapter, store } = createCutProAdapter();
+  try {
+    switch (sub) {
+      case 'status':
+        return print(adapter.status());
+      case 'health':
+        return print(await adapter.checkHealth());
+      case 'capabilities':
+        return print(adapter.listCapabilities());
+      case 'catalog':
+        return print(adapter.catalog.tools.map(({ name, method, path, risk, quotaBucket }) => ({ name, method, path, risk, quotaBucket })));
+      case 'run': {
+        if (!arg) throw new Error('Informe a capacidade. Ex.: autopilot cutpro run account.connections');
+        const outcome = await adapter.run(arg, values.input ? JSON.parse(values.input) : {}, {
+          idempotencyKey: values.key,
+          context: { rightsCleared: values['rights-cleared'] === true, confirmDestructive: values['confirm-destructive'] === true },
+        });
+        return print({ state: outcome.state, reused: outcome.reused ?? false, operation: outcome.operation });
       }
       default:
         print(HELP);

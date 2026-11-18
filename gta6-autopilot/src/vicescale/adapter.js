@@ -1,34 +1,20 @@
 // ViceScaleMCPAdapter: ponto ÚNICO de acesso à ViceScale no Autopilot.
-//
-// Responsabilidades: descoberta de ferramentas, execução, validação de
-// parâmetros, tratamento de erros, alerta de autenticação, auditoria (com
-// redação de segredos), retentativas seguras, idempotência/anti-duplicidade,
-// cotas diárias, dry-run, botão de emergência e monitoramento de saúde.
+// A ViceScale é ferramenta de APOIO (headlines, frases, templates). O núcleo
+// de proteções está em ../core/guarded-adapter.js; aqui ficam a camada de
+// capacidades, a descoberta via tools/list, a ponte via sessão Claude e o
+// monitoramento da conta.
 
 import { readFileSync } from 'node:fs';
 import { CAPABILITIES, UNAVAILABLE } from './capabilities.js';
-import { validateToolInput } from './schema-validator.js';
-import {
-  AuthError,
-  BlockedOperationError,
-  CapabilityUnavailableError,
-  DuplicateOperationError,
-  QuotaExceededError,
-  UnknownToolError,
-  ValidationError,
-  ViceScaleError,
-} from './errors.js';
+import { GuardedAdapter } from '../core/guarded-adapter.js';
+import { AuthError, CapabilityUnavailableError, ViceScaleError } from '../core/errors.js';
 import { redact, redactString } from '../lib/redact.js';
 
 export const loadCatalog = () => JSON.parse(readFileSync(new URL('./catalog.json', import.meta.url), 'utf8'));
 
 // Tetos diários internos. Os limites reais do plano "Vitalício" não são
-// expostos pelo MCP; estes valores evitam consumo descontrolado e são
-// configuráveis (AUTOPILOT_QUOTAS_JSON).
+// expostos pelo MCP; configuráveis via AUTOPILOT_QUOTAS_JSON.
 export const DEFAULT_QUOTAS = { scrap: 60, downloads: 40, render: 24, ai: 120, repost: 20, publish: 20 };
-
-/** dryRun: 'off' | 'publish' (padrão: simula só publicações) | 'writes' (simula tudo que não é leitura). */
-const DRY_RUN_MODES = new Set(['off', 'publish', 'writes']);
 
 const stripDescriptions = (value) => {
   if (Array.isArray(value)) return value.map(stripDescriptions);
@@ -70,33 +56,27 @@ export const parseAccountStatus = (text) => {
   };
 };
 
-export class ViceScaleMCPAdapter {
-  constructor({
-    transport,
-    store,
-    catalog = loadCatalog(),
-    dryRun = 'publish',
-    quotas = DEFAULT_QUOTAS,
-    retry = { attempts: 3, baseDelayMs: 500 },
-    sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
-  }) {
-    if (!transport || !store) throw new Error('ViceScaleMCPAdapter exige transport e store.');
-    if (!DRY_RUN_MODES.has(dryRun)) throw new Error(`dryRun inválido: ${dryRun}`);
-    this.transport = transport;
-    this.store = store;
-    this.catalog = catalog;
-    this.dryRun = dryRun;
-    this.quotas = quotas;
-    this.retry = retry;
-    this.sleep = sleep;
-    this.toolsByName = new Map(catalog.tools.map((t) => [t.name, t]));
+export class ViceScaleMCPAdapter extends GuardedAdapter {
+  constructor({ catalog = loadCatalog(), quotas = DEFAULT_QUOTAS, ...options }) {
+    super({ name: 'vicescale', catalog, quotas, ...options });
   }
 
-  // ---- descoberta -------------------------------------------------------
-
-  tool(name) {
-    return this.toolsByName.get(name) ?? null;
+  isScheduled(tool, args) {
+    return Boolean(args.agendarPara);
   }
+
+  onSuccess(tool, result, latencyMs) {
+    if (tool.name !== 'status') return;
+    const parsed = parseAccountStatus(resultText(result));
+    this.store.recordHealth({ ok: parsed.connected, latencyMs, detail: JSON.stringify(parsed) });
+    if (parsed.connected) this.store.setSetting(this.key('auth_alert'), null);
+  }
+
+  onFailure(tool, error) {
+    if (tool.name === 'status') this.store.recordHealth({ ok: false, detail: redact(error.message) });
+  }
+
+  // ---- capacidades ------------------------------------------------------
 
   listCapabilities() {
     return [
@@ -108,10 +88,23 @@ export class ViceScaleMCPAdapter {
     ];
   }
 
+  /** Executa uma capacidade estável (ver capabilities.js). */
+  async run(capability, input = {}, options = {}) {
+    const unavailable = UNAVAILABLE[capability];
+    if (unavailable) {
+      this.store.audit('capability_unavailable', { detail: { service: this.name, capability, reason: unavailable.reason } });
+      throw new CapabilityUnavailableError(capability, unavailable);
+    }
+    const entry = CAPABILITIES[capability];
+    if (!entry) throw new ViceScaleError(`Capacidade desconhecida: ${capability}`, { code: 'UNKNOWN_CAPABILITY' });
+    return this.execute(entry.tool, entry.map(input), { ...options, capability });
+  }
+
+  // ---- descoberta -------------------------------------------------------
+
   /**
    * Consulta tools/list no servidor (quando o transporte permite) e compara com
-   * o catálogo versionado. Diferenças de schema geram alerta: o catálogo e a
-   * camada de capacidades precisam ser revistos antes de seguir.
+   * o catálogo versionado. Diferenças de schema geram alerta.
    */
   async discover() {
     const remote = await this.transport.listTools();
@@ -135,169 +128,9 @@ export class ViceScaleMCPAdapter {
 
     this.store.saveCatalogSnapshot(this.transport.kind, remote);
     const drift = removed.length > 0 || changed.length > 0;
-    this.store.audit(drift ? 'discovery_drift' : 'discovery_ok', { detail: { added, removed, changed } });
-    if (drift) this.store.setSetting('catalog_drift_alert', { added, removed, changed });
+    this.store.audit(drift ? 'discovery_drift' : 'discovery_ok', { detail: { service: this.name, added, removed, changed } });
+    if (drift) this.store.setSetting(this.key('catalog_drift_alert'), { added, removed, changed });
     return { source: this.transport.kind, tools: remote.map((t) => t.name), added, removed, changed };
-  }
-
-  // ---- execução ---------------------------------------------------------
-
-  /** Executa uma capacidade estável (ver capabilities.js). */
-  async run(capability, input = {}, options = {}) {
-    const unavailable = UNAVAILABLE[capability];
-    if (unavailable) {
-      this.store.audit('capability_unavailable', { detail: { capability, reason: unavailable.reason } });
-      throw new CapabilityUnavailableError(capability, unavailable);
-    }
-    const entry = CAPABILITIES[capability];
-    if (!entry) throw new ViceScaleError(`Capacidade desconhecida: ${capability}`, { code: 'UNKNOWN_CAPABILITY' });
-    return this.execute(entry.tool, entry.map(input), { ...options, capability });
-  }
-
-  /**
-   * @returns {{ state: 'completed'|'queued'|'dry_run', operation: object, reused?: boolean }}
-   */
-  async execute(toolName, args = {}, { idempotencyKey, capability = null, context = {}, retryFailed = false } = {}) {
-    const tool = this.tool(toolName);
-    if (!tool) throw new UnknownToolError(toolName);
-
-    const problems = validateToolInput(tool, args);
-    if (tool.risk !== 'read' && !idempotencyKey) problems.push('idempotencyKey obrigatório para operações que criam, gastam cota ou publicam');
-    if (problems.length > 0) {
-      this.store.audit('validation_failed', { tool: toolName, detail: { problems } });
-      throw new ValidationError(toolName, problems);
-    }
-
-    this.#enforceGuards(tool, args, context);
-
-    if (idempotencyKey) {
-      const existing = this.store.findOperationByKey(idempotencyKey);
-      if (existing) {
-        if (existing.tool !== toolName) throw new DuplicateOperationError(idempotencyKey, `usada por ${existing.tool}`);
-        if (existing.state === 'failed' && retryFailed) {
-          return this.#dispatch(tool, existing, { isRetry: true });
-        }
-        if (existing.state === 'failed') throw new DuplicateOperationError(idempotencyKey, existing.state);
-        this.store.audit('duplicate_suppressed', { tool: toolName, operationId: existing.id });
-        return { state: existing.state, operation: existing, reused: true };
-      }
-    }
-
-    if (this.#isDryRun(tool)) {
-      const operation = this.store.createOperation({
-        idempotencyKey,
-        capability,
-        tool: toolName,
-        args,
-        risk: tool.risk,
-        state: 'dry_run',
-      });
-      const result = { dryRun: true, wouldCall: { tool: toolName, args } };
-      this.store.updateOperation(operation.id, { result });
-      this.store.audit('dry_run', { tool: toolName, operationId: operation.id, detail: redact(args) });
-      return { state: 'dry_run', operation: this.store.getOperation(operation.id) };
-    }
-
-    this.#enforceQuota(tool);
-    const operation = this.store.createOperation({
-      idempotencyKey,
-      capability,
-      tool: toolName,
-      args,
-      risk: tool.risk,
-      state: this.transport.deferred ? 'queued' : 'running',
-    });
-    if (tool.quotaBucket) this.store.incrementQuota(tool.quotaBucket);
-    return this.#dispatch(tool, operation, { isRetry: false });
-  }
-
-  #isDryRun(tool) {
-    if (this.dryRun === 'off' || tool.risk === 'read') return false;
-    if (this.dryRun === 'writes') return true;
-    return tool.risk === 'publish';
-  }
-
-  #enforceGuards(tool, args, context) {
-    if (tool.risk !== 'publish') return;
-    if (this.store.getSetting('emergency_stop', false)) {
-      this.#block(tool, 'emergency_stop', 'Botão de emergência ativo: todas as publicações estão suspensas.');
-    }
-    if (context.rightsCleared !== true) {
-      this.#block(tool, 'rights_not_cleared', 'Publicação bloqueada: material sem direitos de uso registrados (context.rightsCleared).');
-    }
-    if (!args.agendarPara && context.allowImmediate !== true) {
-      this.#block(tool, 'immediate_publish', 'Publicação imediata bloqueada: informe agendarPara ou autorize explicitamente (context.allowImmediate).');
-    }
-  }
-
-  #block(tool, reason, message) {
-    this.store.audit('blocked', { tool: tool.name, detail: { reason } });
-    throw new BlockedOperationError(message, reason);
-  }
-
-  #enforceQuota(tool) {
-    const bucket = tool.quotaBucket;
-    if (!bucket || this.quotas[bucket] === undefined) return;
-    if (this.store.quotaUsed(bucket) >= this.quotas[bucket]) {
-      this.store.audit('quota_exceeded', { tool: tool.name, detail: { bucket, limit: this.quotas[bucket] } });
-      throw new QuotaExceededError(bucket, this.quotas[bucket]);
-    }
-  }
-
-  async #dispatch(tool, operation, { isRetry }) {
-    if (this.transport.deferred) {
-      if (isRetry) this.store.updateOperation(operation.id, { state: 'queued', error: null });
-      this.store.audit('enqueued', { tool: tool.name, operationId: operation.id, detail: redact(operation.args) });
-      return { state: 'queued', operation: this.store.getOperation(operation.id) };
-    }
-
-    // Só leituras são repetidas automaticamente: numa escrita, um erro de rede
-    // não prova que a chamada não chegou ao servidor (risco de duplicar).
-    const maxAttempts = tool.risk === 'read' ? this.retry.attempts : 1;
-    this.store.audit('call_started', { tool: tool.name, operationId: operation.id, detail: redact(operation.args) });
-
-    for (let attempt = 1; ; attempt += 1) {
-      const started = Date.now();
-      try {
-        const result = await this.transport.callTool(tool.name, operation.args);
-        const updated = this.store.updateOperation(operation.id, {
-          state: 'completed',
-          result: redact(result),
-          error: null,
-          incrementAttempts: true,
-        });
-        this.#afterSuccess(tool, result, Date.now() - started);
-        this.store.audit('call_completed', { tool: tool.name, operationId: operation.id, detail: { attempt } });
-        return { state: 'completed', operation: updated };
-      } catch (error) {
-        const canRetry = error.retryable && attempt < maxAttempts;
-        this.store.updateOperation(operation.id, {
-          state: canRetry ? 'running' : 'failed',
-          error: redact(error.message),
-          incrementAttempts: true,
-        });
-        this.#afterFailure(tool, error);
-        if (!canRetry) throw error;
-        await this.sleep(this.retry.baseDelayMs * 2 ** (attempt - 1));
-      }
-    }
-  }
-
-  #afterSuccess(tool, result, latencyMs) {
-    this.store.setSetting('last_success_at', new Date().toISOString());
-    if (tool.name === 'status') {
-      const parsed = parseAccountStatus(resultText(result));
-      this.store.recordHealth({ ok: parsed.connected, latencyMs, detail: JSON.stringify(parsed) });
-      if (parsed.connected) this.store.setSetting('auth_alert', null);
-    }
-  }
-
-  #afterFailure(tool, error) {
-    this.store.audit('call_failed', { tool: tool.name, detail: { code: error.code, message: redact(error.message) } });
-    if (error instanceof AuthError) {
-      this.store.setSetting('auth_alert', { at: new Date().toISOString(), message: redact(error.message) });
-    }
-    if (tool.name === 'status') this.store.recordHealth({ ok: false, detail: redact(error.message) });
   }
 
   // ---- ponte Claude -----------------------------------------------------
@@ -320,12 +153,13 @@ export class ViceScaleMCPAdapter {
     if (error) {
       const failure = authError ? new AuthError(error) : new ViceScaleError(error, { code: 'TOOL_ERROR' });
       this.store.updateOperation(operationId, { state: 'failed', error: redact(error) });
-      this.#afterFailure(tool, failure);
+      this.recordFailure(tool, failure);
       return this.store.getOperation(operationId);
     }
     const result = { content: [{ type: 'text', text: redactString(text) }] };
     this.store.updateOperation(operationId, { state: 'completed', result, error: null });
-    this.#afterSuccess(tool, result, null);
+    this.store.setSetting(this.key('last_success_at'), new Date().toISOString());
+    this.onSuccess(tool, result, null);
     this.store.audit('bridge_completed', { tool: operation.tool, operationId });
     return this.store.getOperation(operationId);
   }
@@ -342,27 +176,12 @@ export class ViceScaleMCPAdapter {
     }
   }
 
-  setEmergencyStop(active) {
-    this.store.setSetting('emergency_stop', Boolean(active));
-    this.store.audit(active ? 'emergency_stop_on' : 'emergency_stop_off');
-  }
-
   status() {
-    const quotas = Object.fromEntries(
-      Object.entries(this.quotas).map(([bucket, limit]) => [bucket, { used: this.store.quotaUsed(bucket), limit }]),
-    );
     return {
-      transport: this.transport.kind,
-      dryRun: this.dryRun,
-      emergencyStop: this.store.getSetting('emergency_stop', false),
+      ...super.status(),
       lastHealth: this.store.lastHealth(),
-      lastSuccessAt: this.store.getSetting('last_success_at'),
-      authAlert: this.store.getSetting('auth_alert'),
-      catalogDriftAlert: this.store.getSetting('catalog_drift_alert'),
-      catalogCapturedAt: this.catalog.capturedAt,
-      toolCount: this.catalog.tools.length,
+      catalogDriftAlert: this.store.getSetting(this.key('catalog_drift_alert')),
       pendingBridge: this.store.listOperations({ state: 'queued' }).length,
-      quotas,
     };
   }
 }

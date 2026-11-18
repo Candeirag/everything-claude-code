@@ -1,0 +1,3433 @@
+{
+  "server": "Cut.Pro API v1",
+  "baseUrl": "https://api.cut.pro/api/v1",
+  "specVersion": "1.0.0",
+  "capturedAt": "2026-11-18",
+  "source": "Gerado por scripts/sync-cutpro-catalog.js a partir do openapi.json oficial. Não editar à mão.",
+  "missingFromSpec": [],
+  "tools": [
+    {
+      "name": "analyzeVideo",
+      "method": "POST",
+      "path": "/videos/info",
+      "summary": "Analyze a video",
+      "risk": "read",
+      "quotaBucket": "analyze",
+      "requiresRights": false,
+      "note": "POST sem custo; limite 10/min",
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "url"
+            ],
+            "properties": {
+              "url": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "applyTemplate",
+      "method": "POST",
+      "path": "/videos/{videoId}/submissions/{submissionId}/apply_template",
+      "summary": "Apply template to clips",
+      "risk": "quota",
+      "quotaBucket": "renders",
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "template_id"
+            ],
+            "properties": {
+              "template_id": {
+                "type": "string"
+              },
+              "clip_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "cancelPost",
+      "method": "DELETE",
+      "path": "/posts/{id}",
+      "summary": "Cancel a post",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "note": "só cancela o que ainda não saiu; permitido mesmo com emergência",
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        "edit_id"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "edit_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "completeVideoUpload",
+      "method": "POST",
+      "path": "/videos/upload/complete",
+      "summary": "Complete an upload",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "video_id",
+              "file_name",
+              "duration",
+              "width",
+              "height"
+            ],
+            "properties": {
+              "video_id": {
+                "type": "string"
+              },
+              "file_name": {
+                "type": "string"
+              },
+              "duration": {
+                "type": "number"
+              },
+              "width": {
+                "type": "number"
+              },
+              "height": {
+                "type": "number"
+              },
+              "destination": {
+                "type": "string",
+                "enum": [
+                  "clipper",
+                  "editor"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "createMonitor",
+      "method": "POST",
+      "path": "/monitors",
+      "summary": "Monitor a channel",
+      "risk": "quota",
+      "quotaBucket": "monitors",
+      "requiresRights": true,
+      "note": "limite 10/min",
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "channel": {
+                "type": "string"
+              },
+              "creator_id": {
+                "pattern": "^[0-9]{1,19}$",
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "live",
+                  "video"
+                ]
+              },
+              "enabled": {
+                "type": "boolean"
+              },
+              "strategy_id": {
+                "pattern": "^[0-9]{1,19}$",
+                "type": "string"
+              },
+              "template_id": {
+                "nullable": true,
+                "pattern": "^[0-9]{1,19}$",
+                "type": "string"
+              },
+              "video_min_duration": {
+                "minimum": 1,
+                "maximum": 3600,
+                "anyOf": [
+                  {
+                    "format": "integer",
+                    "default": 0,
+                    "type": "string"
+                  },
+                  {
+                    "minimum": 1,
+                    "maximum": 3600,
+                    "type": "integer"
+                  }
+                ],
+                "nullable": true
+              },
+              "video_max_duration": {
+                "minimum": 1,
+                "maximum": 3600,
+                "anyOf": [
+                  {
+                    "format": "integer",
+                    "default": 0,
+                    "type": "string"
+                  },
+                  {
+                    "minimum": 1,
+                    "maximum": 3600,
+                    "type": "integer"
+                  }
+                ],
+                "nullable": true
+              },
+              "days_of_week": {
+                "type": "array",
+                "items": {
+                  "minimum": 0,
+                  "maximum": 6,
+                  "anyOf": [
+                    {
+                      "format": "integer",
+                      "default": 0,
+                      "type": "string"
+                    },
+                    {
+                      "minimum": 0,
+                      "maximum": 6,
+                      "type": "integer"
+                    }
+                  ]
+                }
+              },
+              "hours_of_day": {
+                "type": "array",
+                "items": {
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "type": "array",
+                  "items": {
+                    "minimum": 0,
+                    "maximum": 23,
+                    "anyOf": [
+                      {
+                        "format": "integer",
+                        "default": 0,
+                        "type": "string"
+                      },
+                      {
+                        "minimum": 0,
+                        "maximum": 23,
+                        "type": "integer"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "createPost",
+      "method": "POST",
+      "path": "/posts",
+      "summary": "Create a post",
+      "risk": "publish",
+      "quotaBucket": "posts",
+      "requiresRights": true,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "videos"
+            ],
+            "properties": {
+              "videos": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "targets"
+                  ],
+                  "properties": {
+                    "edit_id": {
+                      "type": "string"
+                    },
+                    "image_ids": {
+                      "minItems": 1,
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "type": "string"
+                      }
+                    },
+                    "targets": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "connection_id",
+                          "metadata"
+                        ],
+                        "properties": {
+                          "connection_id": {
+                            "type": "string"
+                          },
+                          "metadata": {
+                            "type": "object",
+                            "properties": {
+                              "tumblr": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "maxLength": 4096,
+                                    "type": "string"
+                                  },
+                                  "tags": {
+                                    "maxItems": 30,
+                                    "type": "array",
+                                    "items": {
+                                      "maxLength": 140,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "slack": {
+                                "type": "object",
+                                "required": [
+                                  "channelId"
+                                ],
+                                "properties": {
+                                  "channelId": {
+                                    "minLength": 1,
+                                    "maxLength": 32,
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "maxLength": 4000,
+                                    "type": "string"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "dailymotion": {
+                                "type": "object",
+                                "required": [
+                                  "title",
+                                  "channel"
+                                ],
+                                "properties": {
+                                  "channel": {
+                                    "minLength": 1,
+                                    "maxLength": 32,
+                                    "type": "string"
+                                  },
+                                  "tags": {
+                                    "maxItems": 150,
+                                    "type": "array",
+                                    "items": {
+                                      "maxLength": 50,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "visibility": {
+                                    "type": "string",
+                                    "enum": [
+                                      "public",
+                                      "private"
+                                    ]
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "telegram": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "maxLength": 4096,
+                                    "type": "string"
+                                  },
+                                  "silent": {
+                                    "type": "boolean"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "mastodon": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "maxLength": 500,
+                                    "type": "string"
+                                  },
+                                  "visibility": {
+                                    "type": "string",
+                                    "enum": [
+                                      "public",
+                                      "unlisted",
+                                      "private"
+                                    ]
+                                  },
+                                  "sensitive": {
+                                    "type": "boolean"
+                                  },
+                                  "spoilerText": {
+                                    "maxLength": 200,
+                                    "type": "string"
+                                  },
+                                  "language": {
+                                    "minLength": 2,
+                                    "maxLength": 8,
+                                    "type": "string"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "discordserver": {
+                                "type": "object",
+                                "required": [
+                                  "channelId"
+                                ],
+                                "properties": {
+                                  "channelId": {
+                                    "minLength": 1,
+                                    "maxLength": 32,
+                                    "type": "string"
+                                  },
+                                  "text": {
+                                    "maxLength": 2000,
+                                    "type": "string"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "youtube": {
+                                "type": "object",
+                                "required": [
+                                  "title",
+                                  "categoryId",
+                                  "privacyStatus"
+                                ],
+                                "properties": {
+                                  "categoryId": {
+                                    "type": "string"
+                                  },
+                                  "privacyStatus": {
+                                    "type": "string",
+                                    "enum": [
+                                      "public",
+                                      "private",
+                                      "unlisted"
+                                    ]
+                                  },
+                                  "license": {
+                                    "type": "string",
+                                    "enum": [
+                                      "youtube",
+                                      "creativeCommon"
+                                    ]
+                                  },
+                                  "embeddable": {
+                                    "type": "boolean"
+                                  },
+                                  "publicStatsViewable": {
+                                    "type": "boolean"
+                                  },
+                                  "madeForKids": {
+                                    "type": "boolean"
+                                  },
+                                  "selfDeclaredMadeForKids": {
+                                    "type": "boolean"
+                                  },
+                                  "tags": {
+                                    "maxItems": 500,
+                                    "type": "array",
+                                    "items": {
+                                      "maxLength": 30,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "notifySubscribers": {
+                                    "type": "boolean"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "tiktok": {
+                                "type": "object",
+                                "required": [
+                                  "title",
+                                  "privacyLevel"
+                                ],
+                                "properties": {
+                                  "photoTitle": {
+                                    "maxLength": 90,
+                                    "type": "string"
+                                  },
+                                  "privacyLevel": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PUBLIC_TO_EVERYONE",
+                                      "MUTUAL_FOLLOW_FRIENDS",
+                                      "FOLLOWER_OF_CREATOR",
+                                      "SELF_ONLY"
+                                    ]
+                                  },
+                                  "disableDuet": {
+                                    "type": "boolean"
+                                  },
+                                  "disableComment": {
+                                    "type": "boolean"
+                                  },
+                                  "disableStitch": {
+                                    "type": "boolean"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  },
+                                  "brandContentToggle": {
+                                    "type": "boolean"
+                                  },
+                                  "brandOrganicToggle": {
+                                    "type": "boolean"
+                                  },
+                                  "isAigc": {
+                                    "type": "boolean"
+                                  }
+                                }
+                              },
+                              "instagram": {
+                                "type": "object",
+                                "properties": {
+                                  "caption": {
+                                    "maxLength": 2200,
+                                    "type": "string"
+                                  },
+                                  "captionGroups": {
+                                    "type": "object",
+                                    "properties": {
+                                      "hook": {
+                                        "maxItems": 30,
+                                        "type": "array",
+                                        "items": {
+                                          "maxLength": 500,
+                                          "type": "string"
+                                        }
+                                      },
+                                      "emoji": {
+                                        "maxItems": 30,
+                                        "type": "array",
+                                        "items": {
+                                          "maxLength": 40,
+                                          "type": "string"
+                                        }
+                                      },
+                                      "body": {
+                                        "maxItems": 30,
+                                        "type": "array",
+                                        "items": {
+                                          "maxLength": 2200,
+                                          "type": "string"
+                                        }
+                                      },
+                                      "cta": {
+                                        "maxItems": 30,
+                                        "type": "array",
+                                        "items": {
+                                          "maxLength": 500,
+                                          "type": "string"
+                                        }
+                                      },
+                                      "hashtags": {
+                                        "maxItems": 30,
+                                        "type": "array",
+                                        "items": {
+                                          "maxLength": 100,
+                                          "type": "string"
+                                        }
+                                      }
+                                    }
+                                  },
+                                  "captionParts": {
+                                    "maxItems": 30,
+                                    "type": "array",
+                                    "items": {
+                                      "maxLength": 2200,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "captionAutoEnvelope": {
+                                    "type": "boolean"
+                                  },
+                                  "captionTemplate": {
+                                    "maxLength": 8000,
+                                    "type": "string"
+                                  },
+                                  "coverUrl": {
+                                    "type": "string"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  },
+                                  "thumbOffset": {
+                                    "minimum": 0,
+                                    "type": "number"
+                                  },
+                                  "shareToFeed": {
+                                    "type": "boolean"
+                                  },
+                                  "audioName": {
+                                    "type": "string"
+                                  },
+                                  "collaborators": {
+                                    "maxItems": 3,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "userTags": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "trialReel": {
+                                    "type": "string",
+                                    "enum": [
+                                      "off",
+                                      "MANUAL",
+                                      "SS_PERFORMANCE"
+                                    ]
+                                  },
+                                  "story": {
+                                    "type": "boolean"
+                                  },
+                                  "firstComment": {
+                                    "maxLength": 2200,
+                                    "type": "string"
+                                  },
+                                  "replyKeyword": {
+                                    "minLength": 1,
+                                    "maxLength": 50,
+                                    "type": "string"
+                                  },
+                                  "replyMessage": {
+                                    "minLength": 1,
+                                    "maxLength": 1000,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "facebook": {
+                                "type": "object",
+                                "properties": {
+                                  "postType": {
+                                    "type": "string",
+                                    "enum": [
+                                      "reel",
+                                      "feed",
+                                      "story"
+                                    ]
+                                  },
+                                  "link": {
+                                    "maxLength": 2048,
+                                    "type": "string"
+                                  },
+                                  "videoTitle": {
+                                    "maxLength": 255,
+                                    "type": "string"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  },
+                                  "firstComment": {
+                                    "maxLength": 8000,
+                                    "type": "string"
+                                  },
+                                  "mentionPageIds": {
+                                    "maxItems": 5,
+                                    "type": "array",
+                                    "items": {
+                                      "pattern": "^\\d{1,24}$",
+                                      "type": "string"
+                                    }
+                                  },
+                                  "replyKeyword": {
+                                    "minLength": 1,
+                                    "maxLength": 50,
+                                    "type": "string"
+                                  },
+                                  "replyMessage": {
+                                    "minLength": 1,
+                                    "maxLength": 1000,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "bluesky": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "maxLength": 300,
+                                    "type": "string"
+                                  },
+                                  "languages": {
+                                    "maxItems": 3,
+                                    "type": "array",
+                                    "items": {
+                                      "minLength": 2,
+                                      "maxLength": 8,
+                                      "type": "string"
+                                    }
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "threads": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "maxLength": 500,
+                                    "type": "string"
+                                  },
+                                  "replyControl": {
+                                    "type": "string",
+                                    "enum": [
+                                      "everyone",
+                                      "accounts_you_follow",
+                                      "mentioned_only"
+                                    ]
+                                  },
+                                  "shareToInstagramStory": {
+                                    "type": "boolean"
+                                  },
+                                  "locationId": {
+                                    "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                                    "type": "string"
+                                  },
+                                  "locationName": {
+                                    "maxLength": 200,
+                                    "type": "string"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  },
+                                  "firstComment": {
+                                    "maxLength": 500,
+                                    "type": "string"
+                                  },
+                                  "replyKeyword": {
+                                    "minLength": 1,
+                                    "maxLength": 50,
+                                    "type": "string"
+                                  },
+                                  "replyMessage": {
+                                    "minLength": 1,
+                                    "maxLength": 500,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "linkedin": {
+                                "type": "object",
+                                "required": [
+                                  "text"
+                                ],
+                                "properties": {
+                                  "text": {
+                                    "minLength": 1,
+                                    "maxLength": 3000,
+                                    "type": "string"
+                                  },
+                                  "visibility": {
+                                    "type": "string",
+                                    "enum": [
+                                      "PUBLIC",
+                                      "CONNECTIONS"
+                                    ]
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "pinterest": {
+                                "type": "object",
+                                "required": [
+                                  "boardId",
+                                  "title",
+                                  "description"
+                                ],
+                                "properties": {
+                                  "boardId": {
+                                    "minLength": 1,
+                                    "type": "string"
+                                  },
+                                  "link": {
+                                    "maxLength": 2048,
+                                    "type": "string"
+                                  },
+                                  "coverImageUrl": {
+                                    "maxLength": 2048,
+                                    "type": "string"
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "carmedia": {
+                                "type": "object",
+                                "required": [
+                                  "title"
+                                ],
+                                "properties": {
+                                  "visibility": {
+                                    "type": "string",
+                                    "enum": [
+                                      "public"
+                                    ]
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "twitter": {
+                                "type": "object",
+                                "properties": {
+                                  "text": {
+                                    "maxLength": 280,
+                                    "type": "string"
+                                  },
+                                  "replySettings": {
+                                    "type": "string",
+                                    "enum": [
+                                      "everyone",
+                                      "following",
+                                      "mentionedUsers"
+                                    ]
+                                  },
+                                  "coverImageId": {
+                                    "maxLength": 64,
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "scheduled_at": {
+                "nullable": true,
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "createRender",
+      "method": "POST",
+      "path": "/renders",
+      "summary": "Render an edit",
+      "risk": "quota",
+      "quotaBucket": "renders",
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "edit_id"
+            ],
+            "properties": {
+              "edit_id": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "createStrategy",
+      "method": "POST",
+      "path": "/strategies",
+      "summary": "Create a clipping strategy",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "name",
+              "clip_min_length",
+              "clip_max_length"
+            ],
+            "properties": {
+              "name": {
+                "minLength": 1,
+                "maxLength": 32,
+                "type": "string"
+              },
+              "clip_focus": {
+                "maxLength": 512,
+                "type": "string"
+              },
+              "title_style": {
+                "maxLength": 512,
+                "type": "string"
+              },
+              "clip_min_length": {
+                "minimum": 5,
+                "maximum": 3600,
+                "type": "number"
+              },
+              "clip_max_length": {
+                "minimum": 10,
+                "maximum": 7200,
+                "type": "number"
+              },
+              "translate_to": {
+                "maxLength": 16,
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "createSubmission",
+      "method": "POST",
+      "path": "/videos/{videoId}/submissions",
+      "summary": "Submit a video for clipping",
+      "risk": "quota",
+      "quotaBucket": "clip_submissions",
+      "requiresRights": true,
+      "pathParams": [
+        "videoId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "source_language": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "en",
+                  "pt"
+                ]
+              },
+              "strategy_id": {
+                "nullable": true,
+                "type": "string"
+              },
+              "timeframe": {
+                "nullable": true,
+                "type": "object",
+                "required": [
+                  "start",
+                  "end"
+                ],
+                "properties": {
+                  "start": {
+                    "minimum": 0,
+                    "type": "number"
+                  },
+                  "end": {
+                    "minimum": 1,
+                    "type": "number"
+                  }
+                }
+              },
+              "template_id": {
+                "nullable": true,
+                "type": "string"
+              },
+              "translate_to": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "videoId",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "createVideoUpload",
+      "method": "POST",
+      "path": "/videos/upload",
+      "summary": "Start an upload",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "file_name",
+              "file_size"
+            ],
+            "properties": {
+              "file_name": {
+                "type": "string"
+              },
+              "file_size": {
+                "type": "number"
+              },
+              "content_type": {
+                "type": "string"
+              },
+              "destination": {
+                "type": "string",
+                "enum": [
+                  "clipper",
+                  "editor"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "deletePostItem",
+      "method": "DELETE",
+      "path": "/posts/{id}/items/{itemId}",
+      "summary": "Delete a post item",
+      "risk": "destructive",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "note": "item publicado: APAGA o vídeo da rede",
+      "pathParams": [
+        "id",
+        "itemId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "deleteSubmission",
+      "method": "DELETE",
+      "path": "/videos/{videoId}/submissions/{submissionId}",
+      "summary": "Delete submission",
+      "risk": "destructive",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId"
+        ]
+      }
+    },
+    {
+      "name": "downloadClipSubtitles",
+      "method": "GET",
+      "path": "/videos/{videoId}/submissions/{submissionId}/clips/{clipId}/subtitles",
+      "summary": "Download a clip's captions",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId",
+        "clipId"
+      ],
+      "queryParams": [
+        "format"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "clipId": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "srt",
+              "txt"
+            ]
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId",
+          "clipId"
+        ]
+      }
+    },
+    {
+      "name": "downloadRender",
+      "method": "GET",
+      "path": "/renders/{renderId}/download",
+      "summary": "Get render download URL",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "renderId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "renderId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "renderId"
+        ]
+      }
+    },
+    {
+      "name": "getBestPostTime",
+      "method": "GET",
+      "path": "/posts/best-time",
+      "summary": "Best time to post per account",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [
+        "connection_ids"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection_ids": {
+            "pattern": "^[^,\\s]+(,[^,\\s]+){0,9}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "connection_ids"
+        ]
+      }
+    },
+    {
+      "name": "getConnectionLink",
+      "method": "GET",
+      "path": "/connections/link",
+      "summary": "Get the link to connect an account",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [
+        "platform"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "youtube",
+              "tiktok",
+              "instagram",
+              "bluesky",
+              "threads",
+              "linkedin",
+              "pinterest",
+              "facebook",
+              "twitch",
+              "kick",
+              "discord"
+            ]
+          }
+        },
+        "required": [
+          "platform"
+        ]
+      }
+    },
+    {
+      "name": "getMonitor",
+      "method": "GET",
+      "path": "/monitors/{id}",
+      "summary": "Get a monitored channel",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "getPost",
+      "method": "GET",
+      "path": "/posts/{id}",
+      "summary": "Get a post",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "getPostAvailability",
+      "method": "GET",
+      "path": "/posts/availability",
+      "summary": "Posts per day per account",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [
+        "connection_ids",
+        "from",
+        "to"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "connection_ids": {
+            "type": "string"
+          },
+          "from": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          },
+          "to": {
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "connection_ids",
+          "from",
+          "to"
+        ]
+      }
+    },
+    {
+      "name": "getPostUsage",
+      "method": "GET",
+      "path": "/posts/usage",
+      "summary": "Posts left today per account",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "getRender",
+      "method": "GET",
+      "path": "/renders/{renderId}",
+      "summary": "Get render status",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "renderId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "renderId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "renderId"
+        ]
+      }
+    },
+    {
+      "name": "getRenderLimits",
+      "method": "GET",
+      "path": "/renders/limits",
+      "summary": "Get render quota",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "getSubmission",
+      "method": "GET",
+      "path": "/videos/{videoId}/submissions/{submissionId}",
+      "summary": "Get submission",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId"
+        ]
+      }
+    },
+    {
+      "name": "getWorkspace",
+      "method": "GET",
+      "path": "/workspace",
+      "summary": "Get current workspace",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "listBroadcastClips",
+      "method": "GET",
+      "path": "/monitors/{id}/broadcasts/{broadcastId}/clips",
+      "summary": "List clips of a broadcast",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id",
+        "broadcastId"
+      ],
+      "queryParams": [
+        "page",
+        "limit",
+        "sort",
+        "order",
+        "min_rating",
+        "max_rating"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          },
+          "broadcastId": {
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "duration",
+              "title",
+              "created_at"
+            ]
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          "min_rating": {
+            "minimum": 0,
+            "maximum": 10,
+            "type": "number"
+          },
+          "max_rating": {
+            "minimum": 0,
+            "maximum": 10,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "broadcastId"
+        ]
+      }
+    },
+    {
+      "name": "listBroadcasts",
+      "method": "GET",
+      "path": "/monitors/{id}/broadcasts",
+      "summary": "List broadcasts of a live monitor",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [
+        "page",
+        "limit"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "listClipIds",
+      "method": "GET",
+      "path": "/videos/{videoId}/submissions/{submissionId}/clips/ids",
+      "summary": "List clip IDs of a submission",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId"
+      ],
+      "queryParams": [
+        "sort",
+        "order",
+        "min_rating",
+        "max_rating"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "duration",
+              "title",
+              "start_time"
+            ]
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          "min_rating": {
+            "minimum": 0,
+            "maximum": 10,
+            "type": "number"
+          },
+          "max_rating": {
+            "minimum": 0,
+            "maximum": 10,
+            "type": "number"
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId"
+        ]
+      }
+    },
+    {
+      "name": "listClips",
+      "method": "GET",
+      "path": "/videos/{videoId}/submissions/{submissionId}/clips",
+      "summary": "List generated clips",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId"
+      ],
+      "queryParams": [
+        "page",
+        "limit",
+        "sort",
+        "order",
+        "min_rating",
+        "max_rating"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "rating",
+              "duration",
+              "title",
+              "start_time"
+            ]
+          },
+          "order": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          "min_rating": {
+            "minimum": 0,
+            "maximum": 10,
+            "type": "number"
+          },
+          "max_rating": {
+            "minimum": 0,
+            "maximum": 10,
+            "type": "number"
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId"
+        ]
+      }
+    },
+    {
+      "name": "listConnections",
+      "method": "GET",
+      "path": "/connections",
+      "summary": "List connections",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [
+        "page",
+        "limit",
+        "platform"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          },
+          "platform": {
+            "type": "string",
+            "enum": [
+              "youtube",
+              "tiktok",
+              "instagram",
+              "bluesky",
+              "threads",
+              "linkedin",
+              "pinterest",
+              "facebook",
+              "twitch",
+              "kick",
+              "discord"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "listMonitors",
+      "method": "GET",
+      "path": "/monitors",
+      "summary": "List monitored channels",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [
+        "page",
+        "limit",
+        "type"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "live",
+              "video"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "listPosts",
+      "method": "GET",
+      "path": "/posts",
+      "summary": "List posts",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [
+        "page",
+        "limit",
+        "status"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "processing",
+              "completed",
+              "partial",
+              "failed",
+              "cancelled"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "listStrategies",
+      "method": "GET",
+      "path": "/strategies",
+      "summary": "List clipping strategies",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "listSubmissions",
+      "method": "GET",
+      "path": "/videos/{videoId}/submissions",
+      "summary": "List submissions",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId"
+      ],
+      "queryParams": [
+        "page",
+        "limit"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          }
+        },
+        "required": [
+          "videoId"
+        ]
+      }
+    },
+    {
+      "name": "listTemplates",
+      "method": "GET",
+      "path": "/templates",
+      "summary": "List templates",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [],
+      "queryParams": [
+        "page",
+        "limit",
+        "filter",
+        "sort"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "page": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "limit": {
+            "minimum": 1,
+            "maximum": 100,
+            "type": "number"
+          },
+          "filter": {
+            "type": "string",
+            "enum": [
+              "mine",
+              "public"
+            ]
+          },
+          "sort": {
+            "type": "string",
+            "enum": [
+              "recent",
+              "most_recent",
+              "name"
+            ]
+          }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "publishPost",
+      "method": "POST",
+      "path": "/posts/{id}/publish",
+      "summary": "Trigger publish",
+      "risk": "publish",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "rateClip",
+      "method": "POST",
+      "path": "/videos/{videoId}/submissions/{submissionId}/clips/{clipId}/feedback",
+      "summary": "Rate a clip",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId",
+        "clipId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "clipId": {
+            "pattern": "^[0-9]{1,20}$",
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "feedback"
+            ],
+            "properties": {
+              "feedback": {
+                "nullable": true,
+                "type": "string",
+                "enum": [
+                  "up",
+                  "down",
+                  null
+                ]
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "bad_cut",
+                  "bad_duration",
+                  "wrong_framing",
+                  "caption_errors",
+                  "other"
+                ]
+              }
+            }
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId",
+          "clipId",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "renameClip",
+      "method": "PUT",
+      "path": "/videos/{videoId}/submissions/{submissionId}/clips/{clipId}/title",
+      "summary": "Rename a clip",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId",
+        "clipId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "clipId": {
+            "pattern": "^[0-9]{1,20}$",
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "title",
+              "highlights"
+            ],
+            "properties": {
+              "highlights": {
+                "maxItems": 4,
+                "type": "array",
+                "items": {
+                  "maxLength": 255,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId",
+          "clipId",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "renderBroadcastClip",
+      "method": "POST",
+      "path": "/monitors/{id}/broadcasts/{broadcastId}/clips/{clipId}/render",
+      "summary": "Render a broadcast clip",
+      "risk": "quota",
+      "quotaBucket": "renders",
+      "requiresRights": false,
+      "pathParams": [
+        "id",
+        "broadcastId",
+        "clipId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          },
+          "broadcastId": {
+            "type": "string"
+          },
+          "clipId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "broadcastId",
+          "clipId"
+        ]
+      }
+    },
+    {
+      "name": "renderClip",
+      "method": "POST",
+      "path": "/videos/{videoId}/submissions/{submissionId}/clips/{clipId}/render",
+      "summary": "Render a clip",
+      "risk": "quota",
+      "quotaBucket": "renders",
+      "requiresRights": false,
+      "pathParams": [
+        "videoId",
+        "submissionId",
+        "clipId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "clipId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId",
+          "clipId"
+        ]
+      }
+    },
+    {
+      "name": "reschedulePostItems",
+      "method": "POST",
+      "path": "/posts/{id}/reschedule",
+      "summary": "Move items to a new time",
+      "risk": "publish",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "item_ids",
+              "scheduled_at"
+            ],
+            "properties": {
+              "item_ids": {
+                "minItems": 1,
+                "maxItems": 1000,
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "scheduled_at": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "retryPostItem",
+      "method": "POST",
+      "path": "/posts/{id}/items/{itemId}/retry",
+      "summary": "Retry a failed item",
+      "risk": "publish",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id",
+        "itemId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "itemId"
+        ]
+      }
+    },
+    {
+      "name": "retrySubmission",
+      "method": "POST",
+      "path": "/videos/{videoId}/submissions/{submissionId}/retry",
+      "summary": "Retry a failed submission",
+      "risk": "quota",
+      "quotaBucket": "clip_submissions",
+      "requiresRights": true,
+      "pathParams": [
+        "videoId",
+        "submissionId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId"
+        ]
+      }
+    },
+    {
+      "name": "searchChannels",
+      "method": "GET",
+      "path": "/monitors/search",
+      "summary": "Search channels to monitor",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "note": "limite 30/min",
+      "pathParams": [],
+      "queryParams": [
+        "platform",
+        "q"
+      ],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "platform": {
+            "type": "string",
+            "enum": [
+              "youtube",
+              "twitch",
+              "kick"
+            ]
+          },
+          "q": {
+            "minLength": 1,
+            "maxLength": 100,
+            "type": "string"
+          }
+        },
+        "required": [
+          "platform",
+          "q"
+        ]
+      }
+    },
+    {
+      "name": "startMonitor",
+      "method": "POST",
+      "path": "/monitors/{id}/start",
+      "summary": "Start monitoring",
+      "risk": "quota",
+      "quotaBucket": "monitors",
+      "requiresRights": true,
+      "note": "live cobra por bloco de 10 min",
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "stopMonitor",
+      "method": "POST",
+      "path": "/monitors/{id}/stop",
+      "summary": "Stop monitoring",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      }
+    },
+    {
+      "name": "suggestClipTitles",
+      "method": "POST",
+      "path": "/videos/{videoId}/submissions/{submissionId}/clips/{clipId}/title/suggest",
+      "summary": "Suggest new titles for a clip",
+      "risk": "quota",
+      "quotaBucket": "title_suggestions",
+      "requiresRights": false,
+      "note": "grátis; 60/h por workspace",
+      "pathParams": [
+        "videoId",
+        "submissionId",
+        "clipId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "videoId": {
+            "type": "string"
+          },
+          "submissionId": {
+            "type": "string"
+          },
+          "clipId": {
+            "pattern": "^[0-9]{1,20}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "videoId",
+          "submissionId",
+          "clipId"
+        ]
+      }
+    },
+    {
+      "name": "updateMonitor",
+      "method": "PATCH",
+      "path": "/monitors/{id}",
+      "summary": "Update a monitor",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "type": "boolean"
+              },
+              "strategy_id": {
+                "pattern": "^[0-9]{1,19}$",
+                "type": "string"
+              },
+              "template_id": {
+                "nullable": true,
+                "pattern": "^[0-9]{1,19}$",
+                "type": "string"
+              },
+              "video_min_duration": {
+                "minimum": 1,
+                "maximum": 3600,
+                "anyOf": [
+                  {
+                    "format": "integer",
+                    "default": 0,
+                    "type": "string"
+                  },
+                  {
+                    "minimum": 1,
+                    "maximum": 3600,
+                    "type": "integer"
+                  }
+                ],
+                "nullable": true
+              },
+              "video_max_duration": {
+                "minimum": 1,
+                "maximum": 3600,
+                "anyOf": [
+                  {
+                    "format": "integer",
+                    "default": 0,
+                    "type": "string"
+                  },
+                  {
+                    "minimum": 1,
+                    "maximum": 3600,
+                    "type": "integer"
+                  }
+                ],
+                "nullable": true
+              },
+              "days_of_week": {
+                "type": "array",
+                "items": {
+                  "minimum": 0,
+                  "maximum": 6,
+                  "anyOf": [
+                    {
+                      "format": "integer",
+                      "default": 0,
+                      "type": "string"
+                    },
+                    {
+                      "minimum": 0,
+                      "maximum": 6,
+                      "type": "integer"
+                    }
+                  ]
+                }
+              },
+              "hours_of_day": {
+                "type": "array",
+                "items": {
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "type": "array",
+                  "items": {
+                    "minimum": 0,
+                    "maximum": 23,
+                    "anyOf": [
+                      {
+                        "format": "integer",
+                        "default": 0,
+                        "type": "string"
+                      },
+                      {
+                        "minimum": 0,
+                        "maximum": 23,
+                        "type": "integer"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "updatePost",
+      "method": "PATCH",
+      "path": "/posts/{id}",
+      "summary": "Update a post",
+      "risk": "publish",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "scheduled_at": {
+                "nullable": true,
+                "type": "string"
+              },
+              "items": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "connection_id",
+                    "metadata"
+                  ],
+                  "properties": {
+                    "item_id": {
+                      "type": "string"
+                    },
+                    "edit_id": {
+                      "type": "string"
+                    },
+                    "image_ids": {
+                      "minItems": 1,
+                      "maxItems": 10,
+                      "type": "array",
+                      "items": {
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "type": "string"
+                      }
+                    },
+                    "connection_id": {
+                      "type": "string"
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "tumblr": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "maxLength": 4096,
+                              "type": "string"
+                            },
+                            "tags": {
+                              "maxItems": 30,
+                              "type": "array",
+                              "items": {
+                                "maxLength": 140,
+                                "type": "string"
+                              }
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "slack": {
+                          "type": "object",
+                          "required": [
+                            "channelId"
+                          ],
+                          "properties": {
+                            "channelId": {
+                              "minLength": 1,
+                              "maxLength": 32,
+                              "type": "string"
+                            },
+                            "text": {
+                              "maxLength": 4000,
+                              "type": "string"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "dailymotion": {
+                          "type": "object",
+                          "required": [
+                            "title",
+                            "channel"
+                          ],
+                          "properties": {
+                            "channel": {
+                              "minLength": 1,
+                              "maxLength": 32,
+                              "type": "string"
+                            },
+                            "tags": {
+                              "maxItems": 150,
+                              "type": "array",
+                              "items": {
+                                "maxLength": 50,
+                                "type": "string"
+                              }
+                            },
+                            "visibility": {
+                              "type": "string",
+                              "enum": [
+                                "public",
+                                "private"
+                              ]
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "telegram": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "maxLength": 4096,
+                              "type": "string"
+                            },
+                            "silent": {
+                              "type": "boolean"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "mastodon": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "maxLength": 500,
+                              "type": "string"
+                            },
+                            "visibility": {
+                              "type": "string",
+                              "enum": [
+                                "public",
+                                "unlisted",
+                                "private"
+                              ]
+                            },
+                            "sensitive": {
+                              "type": "boolean"
+                            },
+                            "spoilerText": {
+                              "maxLength": 200,
+                              "type": "string"
+                            },
+                            "language": {
+                              "minLength": 2,
+                              "maxLength": 8,
+                              "type": "string"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "discordserver": {
+                          "type": "object",
+                          "required": [
+                            "channelId"
+                          ],
+                          "properties": {
+                            "channelId": {
+                              "minLength": 1,
+                              "maxLength": 32,
+                              "type": "string"
+                            },
+                            "text": {
+                              "maxLength": 2000,
+                              "type": "string"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "youtube": {
+                          "type": "object",
+                          "required": [
+                            "title",
+                            "categoryId",
+                            "privacyStatus"
+                          ],
+                          "properties": {
+                            "categoryId": {
+                              "type": "string"
+                            },
+                            "privacyStatus": {
+                              "type": "string",
+                              "enum": [
+                                "public",
+                                "private",
+                                "unlisted"
+                              ]
+                            },
+                            "license": {
+                              "type": "string",
+                              "enum": [
+                                "youtube",
+                                "creativeCommon"
+                              ]
+                            },
+                            "embeddable": {
+                              "type": "boolean"
+                            },
+                            "publicStatsViewable": {
+                              "type": "boolean"
+                            },
+                            "madeForKids": {
+                              "type": "boolean"
+                            },
+                            "selfDeclaredMadeForKids": {
+                              "type": "boolean"
+                            },
+                            "tags": {
+                              "maxItems": 500,
+                              "type": "array",
+                              "items": {
+                                "maxLength": 30,
+                                "type": "string"
+                              }
+                            },
+                            "notifySubscribers": {
+                              "type": "boolean"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "tiktok": {
+                          "type": "object",
+                          "required": [
+                            "title",
+                            "privacyLevel"
+                          ],
+                          "properties": {
+                            "photoTitle": {
+                              "maxLength": 90,
+                              "type": "string"
+                            },
+                            "privacyLevel": {
+                              "type": "string",
+                              "enum": [
+                                "PUBLIC_TO_EVERYONE",
+                                "MUTUAL_FOLLOW_FRIENDS",
+                                "FOLLOWER_OF_CREATOR",
+                                "SELF_ONLY"
+                              ]
+                            },
+                            "disableDuet": {
+                              "type": "boolean"
+                            },
+                            "disableComment": {
+                              "type": "boolean"
+                            },
+                            "disableStitch": {
+                              "type": "boolean"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            },
+                            "brandContentToggle": {
+                              "type": "boolean"
+                            },
+                            "brandOrganicToggle": {
+                              "type": "boolean"
+                            },
+                            "isAigc": {
+                              "type": "boolean"
+                            }
+                          }
+                        },
+                        "instagram": {
+                          "type": "object",
+                          "properties": {
+                            "caption": {
+                              "maxLength": 2200,
+                              "type": "string"
+                            },
+                            "captionGroups": {
+                              "type": "object",
+                              "properties": {
+                                "hook": {
+                                  "maxItems": 30,
+                                  "type": "array",
+                                  "items": {
+                                    "maxLength": 500,
+                                    "type": "string"
+                                  }
+                                },
+                                "emoji": {
+                                  "maxItems": 30,
+                                  "type": "array",
+                                  "items": {
+                                    "maxLength": 40,
+                                    "type": "string"
+                                  }
+                                },
+                                "body": {
+                                  "maxItems": 30,
+                                  "type": "array",
+                                  "items": {
+                                    "maxLength": 2200,
+                                    "type": "string"
+                                  }
+                                },
+                                "cta": {
+                                  "maxItems": 30,
+                                  "type": "array",
+                                  "items": {
+                                    "maxLength": 500,
+                                    "type": "string"
+                                  }
+                                },
+                                "hashtags": {
+                                  "maxItems": 30,
+                                  "type": "array",
+                                  "items": {
+                                    "maxLength": 100,
+                                    "type": "string"
+                                  }
+                                }
+                              }
+                            },
+                            "captionParts": {
+                              "maxItems": 30,
+                              "type": "array",
+                              "items": {
+                                "maxLength": 2200,
+                                "type": "string"
+                              }
+                            },
+                            "captionAutoEnvelope": {
+                              "type": "boolean"
+                            },
+                            "captionTemplate": {
+                              "maxLength": 8000,
+                              "type": "string"
+                            },
+                            "coverUrl": {
+                              "type": "string"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            },
+                            "thumbOffset": {
+                              "minimum": 0,
+                              "type": "number"
+                            },
+                            "shareToFeed": {
+                              "type": "boolean"
+                            },
+                            "audioName": {
+                              "type": "string"
+                            },
+                            "collaborators": {
+                              "maxItems": 3,
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "userTags": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "trialReel": {
+                              "type": "string",
+                              "enum": [
+                                "off",
+                                "MANUAL",
+                                "SS_PERFORMANCE"
+                              ]
+                            },
+                            "story": {
+                              "type": "boolean"
+                            },
+                            "firstComment": {
+                              "maxLength": 2200,
+                              "type": "string"
+                            },
+                            "replyKeyword": {
+                              "minLength": 1,
+                              "maxLength": 50,
+                              "type": "string"
+                            },
+                            "replyMessage": {
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "facebook": {
+                          "type": "object",
+                          "properties": {
+                            "postType": {
+                              "type": "string",
+                              "enum": [
+                                "reel",
+                                "feed",
+                                "story"
+                              ]
+                            },
+                            "link": {
+                              "maxLength": 2048,
+                              "type": "string"
+                            },
+                            "videoTitle": {
+                              "maxLength": 255,
+                              "type": "string"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            },
+                            "firstComment": {
+                              "maxLength": 8000,
+                              "type": "string"
+                            },
+                            "mentionPageIds": {
+                              "maxItems": 5,
+                              "type": "array",
+                              "items": {
+                                "pattern": "^\\d{1,24}$",
+                                "type": "string"
+                              }
+                            },
+                            "replyKeyword": {
+                              "minLength": 1,
+                              "maxLength": 50,
+                              "type": "string"
+                            },
+                            "replyMessage": {
+                              "minLength": 1,
+                              "maxLength": 1000,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "bluesky": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "maxLength": 300,
+                              "type": "string"
+                            },
+                            "languages": {
+                              "maxItems": 3,
+                              "type": "array",
+                              "items": {
+                                "minLength": 2,
+                                "maxLength": 8,
+                                "type": "string"
+                              }
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "threads": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "maxLength": 500,
+                              "type": "string"
+                            },
+                            "replyControl": {
+                              "type": "string",
+                              "enum": [
+                                "everyone",
+                                "accounts_you_follow",
+                                "mentioned_only"
+                              ]
+                            },
+                            "shareToInstagramStory": {
+                              "type": "boolean"
+                            },
+                            "locationId": {
+                              "pattern": "^[A-Za-z0-9_-]{1,64}$",
+                              "type": "string"
+                            },
+                            "locationName": {
+                              "maxLength": 200,
+                              "type": "string"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            },
+                            "firstComment": {
+                              "maxLength": 500,
+                              "type": "string"
+                            },
+                            "replyKeyword": {
+                              "minLength": 1,
+                              "maxLength": 50,
+                              "type": "string"
+                            },
+                            "replyMessage": {
+                              "minLength": 1,
+                              "maxLength": 500,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "linkedin": {
+                          "type": "object",
+                          "required": [
+                            "text"
+                          ],
+                          "properties": {
+                            "text": {
+                              "minLength": 1,
+                              "maxLength": 3000,
+                              "type": "string"
+                            },
+                            "visibility": {
+                              "type": "string",
+                              "enum": [
+                                "PUBLIC",
+                                "CONNECTIONS"
+                              ]
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "pinterest": {
+                          "type": "object",
+                          "required": [
+                            "boardId",
+                            "title",
+                            "description"
+                          ],
+                          "properties": {
+                            "boardId": {
+                              "minLength": 1,
+                              "type": "string"
+                            },
+                            "link": {
+                              "maxLength": 2048,
+                              "type": "string"
+                            },
+                            "coverImageUrl": {
+                              "maxLength": 2048,
+                              "type": "string"
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "carmedia": {
+                          "type": "object",
+                          "required": [
+                            "title"
+                          ],
+                          "properties": {
+                            "visibility": {
+                              "type": "string",
+                              "enum": [
+                                "public"
+                              ]
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "twitter": {
+                          "type": "object",
+                          "properties": {
+                            "text": {
+                              "maxLength": 280,
+                              "type": "string"
+                            },
+                            "replySettings": {
+                              "type": "string",
+                              "enum": [
+                                "everyone",
+                                "following",
+                                "mentionedUsers"
+                              ]
+                            },
+                            "coverImageId": {
+                              "maxLength": 64,
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "updateStrategy",
+      "method": "PATCH",
+      "path": "/strategies/{id}",
+      "summary": "Update a clipping strategy",
+      "risk": "write",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,20}$",
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "minLength": 1,
+                "maxLength": 32,
+                "type": "string"
+              },
+              "clip_focus": {
+                "maxLength": 512,
+                "type": "string"
+              },
+              "title_style": {
+                "maxLength": 512,
+                "type": "string"
+              },
+              "clip_min_length": {
+                "minimum": 5,
+                "maximum": 3600,
+                "type": "number"
+              },
+              "clip_max_length": {
+                "minimum": 10,
+                "maximum": 7200,
+                "type": "number"
+              },
+              "translate_to": {
+                "maxLength": 16,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "body"
+        ]
+      }
+    },
+    {
+      "name": "writePostDescription",
+      "method": "POST",
+      "path": "/posts/description",
+      "summary": "Write the post description with AI",
+      "risk": "quota",
+      "quotaBucket": "descriptions",
+      "requiresRights": false,
+      "note": "0-1 crédito",
+      "pathParams": [],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "body": {
+            "type": "object",
+            "required": [
+              "platforms"
+            ],
+            "properties": {
+              "edit_id": {
+                "minLength": 1,
+                "maxLength": 64,
+                "type": "string"
+              },
+              "image_ids": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "type": "string"
+                }
+              },
+              "platforms": {
+                "maxItems": 16,
+                "type": "array",
+                "items": {
+                  "minLength": 1,
+                  "maxLength": 32,
+                  "type": "string"
+                }
+              },
+              "style": {
+                "type": "object",
+                "required": [
+                  "tone",
+                  "length",
+                  "hashtags",
+                  "emojis",
+                  "language",
+                  "instructions",
+                  "template"
+                ],
+                "properties": {
+                  "tone": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "fun",
+                      "curious",
+                      "informative",
+                      "provocative",
+                      "inspiring",
+                      "professional"
+                    ]
+                  },
+                  "length": {
+                    "type": "string",
+                    "enum": [
+                      "short",
+                      "medium",
+                      "long"
+                    ]
+                  },
+                  "hashtags": {
+                    "minimum": 0,
+                    "maximum": 10,
+                    "anyOf": [
+                      {
+                        "format": "integer",
+                        "default": 0,
+                        "type": "string"
+                      },
+                      {
+                        "minimum": 0,
+                        "maximum": 10,
+                        "type": "integer"
+                      }
+                    ]
+                  },
+                  "emojis": {
+                    "type": "boolean"
+                  },
+                  "language": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "pt",
+                      "en",
+                      "es",
+                      "fr",
+                      "de",
+                      "it"
+                    ]
+                  },
+                  "instructions": {
+                    "maxLength": 5000,
+                    "type": "string"
+                  },
+                  "template": {
+                    "maxLength": 2000,
+                    "type": "string"
+                  }
+                }
+              },
+              "preset_id": {
+                "maxLength": 64,
+                "type": "string"
+              },
+              "prompt": {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              "current_text": {
+                "maxLength": 5000,
+                "type": "string"
+              }
+            }
+          }
+        },
+        "required": [
+          "body"
+        ]
+      }
+    }
+  ]
+}

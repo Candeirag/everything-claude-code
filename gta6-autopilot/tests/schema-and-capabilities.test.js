@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { loadCatalog } from '../src/vicescale/adapter.js';
-import { validateToolInput } from '../src/vicescale/schema-validator.js';
+import { validateToolInput } from '../src/core/schema-validator.js';
 import { CAPABILITIES, UNAVAILABLE } from '../src/vicescale/capabilities.js';
 import { redact } from '../src/lib/redact.js';
 

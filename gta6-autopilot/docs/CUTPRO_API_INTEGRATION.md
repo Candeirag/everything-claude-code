@@ -1,7 +1,16 @@
 # Cut.Pro — Análise da API (ferramenta principal de cortes e publicação)
 
 > Levantamento feito em 2026-11-18 a partir da documentação oficial (cut.pro/docs: clipping, publishing, monitoring, rendering, uploads, rate-limits, mcp).
-> O contrato `https://api.cut.pro/api/v1/openapi.json` é a fonte da verdade. Ele ainda **não** foi lido porque este container não alcança `api.cut.pro` (proxy recusou). Antes de implementar cada rota, conferir parâmetros e enums no contrato.
+> O contrato `https://api.cut.pro/api/v1/openapi.json` (v1.0.0, 107 rotas) foi baixado em 18/11/2026. As 50 operações usadas estão em `src/cutpro/catalog.json`, gerado por `scripts/sync-cutpro-catalog.js`; para atualizar, rode o script de novo.
+
+## Achados do contrato (prevalecem sobre a documentação em texto)
+| Achado | Consequência |
+|---|---|
+| **Não há rota de métricas por post** (views, likes, retenção por vídeo) | `analytics.postMetrics` é indisponível. Por vídeo: YouTube Data API (`videos.list part=statistics` com o `published_url`) e TikTok Display API |
+| `GET /connections` traz `followers_count`, `posts_count`, `likes_count` e `is_verified` por conta | `analytics.accountSnapshot`: crescimento de seguidores **real**, medido por snapshot diário |
+| IDs (vídeo, submissão, clipe, monitor, post) seguem `^[0-9]{1,19}$` | O validador recusa IDs mal formados antes de chamar a API |
+| `metadata.tiktok`/`metadata.youtube` marcam `title` como obrigatório, mas não o listam nas propriedades (inconsistência do contrato) | O adaptador envia `title` (schema sem `additionalProperties: false`), como a documentação manda |
+| Chave com vários workspaces exige `X-Workspace-Id` (senão `400 MISSING_WORKSPACE_ID`) | `CUTPRO_WORKSPACE_ID` opcional |
 
 ## Decisão
 **Cut.Pro é a plataforma principal** (cortes, render, publicação incluindo TikTok). **ViceScale vira apoio** (headlines de GTA, templates e variações).
@@ -37,7 +46,7 @@ GET  /posts/{id}               itens pending → rendering → publishing → co
 | Video Producer | `template_id` na submissão/monitor, `POST .../render`, `GET /renders/limits` | Identidade visual = template salvo na Cut.Pro. Vertical, legendas PT |
 | Copywriter | `POST .../title/suggest` (grátis, 60/h), `POST /posts/description` (0–1 crédito, campos prontos por rede) | Complementa as headlines de GTA da ViceScale |
 | Publisher | `GET /connections`, `GET /connections/link?platform=tiktok`, `POST /posts`, `GET /posts/usage`, `GET /posts/best-time`, `PATCH`/`reschedule`/`retry`/`DELETE` | **TikTok suportado** (`title`, `privacyLevel` obrigatórios; `isAigc`). YouTube exige `title`, `categoryId` (Games = 20), `privacyStatus` |
-| Performance Analyst | ⚠️ **Não confirmado.** O site anuncia "visualizações e engajamento de cada post", mas nenhuma rota de métricas aparece nas páginas lidas. `GET /connections` traz "números da audiência" | Verificar no `openapi.json`. Plano B: YouTube Analytics API e TikTok Display API |
+| Performance Analyst | Só agregados da conta (`GET /connections`). **Sem métricas por post no contrato** | Por vídeo: YouTube Data API e TikTok Display API |
 | Growth Manager | `POST .../feedback` (`up`/`down`) | Ensina a IA de cortes; `down` em clipe nota ≤ 5 pode devolver créditos |
 
 Envio de corte próprio (gameplay próprio ou editado fora): `POST /videos/upload` → PUT → `POST /videos/upload/complete`. Com `"destination": "editor"`, o MP4 entra pronto para postar, sem cobrança.
@@ -73,8 +82,31 @@ Para 8 vídeos/dia (4 por rede, abaixo do limite de 9 do Plus), o **Plus** deve 
 ## Direitos de uso
 A Cut.Pro corta qualquer link público, mas isso não dá direito de uso. A API até recusa alguns vídeos com `COPYRIGHT_BLOCKED`, o que **não** equivale a autorização. O Autopilot só envia para submissão vídeos e canais com licença registrada (mesma regra `rightsCleared` do adaptador ViceScale).
 
-## Pendências para começar a integração
-1. Ler o `openapi.json`. Exige liberar `api.cut.pro` na rede do ambiente, ou ler via ferramenta externa.
-2. Conta Cut.Pro e chave de API (plano grátis basta para testar), salva como secret.
-3. Conectar TikTok e YouTube **na Cut.Pro** (`GET /connections/link`).
-4. Confirmar no contrato se existe rota de métricas por post.
+## `CutProAdapter` (implementado)
+`src/cutpro/adapter.js`, sobre o mesmo núcleo do adaptador ViceScale (`src/core/guarded-adapter.js`):
+- valida cada chamada contra o schema oficial;
+- exige `idempotencyKey` em tudo que não é leitura;
+- repete só leituras, respeitando `Retry-After`;
+- aplica cotas diárias internas (`DEFAULT_CUTPRO_QUOTAS`, ajustáveis por `CUTPRO_QUOTAS_JSON`);
+- exige direitos de uso para cortar (`createSubmission`, `createMonitor`, `startMonitor`) e publicar;
+- exige `scheduled_at` futuro para publicar (salvo `allowImmediate`);
+- simula (dry-run) publicações e exclusões por padrão;
+- exige `confirmDestructive` em exclusões;
+- o botão de emergência bloqueia publicar, mas permite **cancelar** agendamentos.
+
+```bash
+CUTPRO_API_KEY=... autopilot cutpro health
+autopilot cutpro run account.connections
+autopilot cutpro run source.analyze --input '{"url":"https://www.youtube.com/watch?v=..."}'
+```
+
+Neste container de desenvolvimento a chave é injetada pelo proxy: use `CUTPRO_API_KEY=proxy-injected NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt`. O `fetch` do Node só usa o proxy com `NODE_USE_ENV_PROXY=1`.
+
+## Estado do teste real (18/11/2026)
+- Rede: ✅ `api.cut.pro` liberada no ambiente `gta6-autopilot`; contrato baixado.
+- Autenticação: ❌ a API responde `401 UNAUTHORIZED` à chave salva. O caminho adaptador → proxy → API funciona e o erro é classificado como `AUTH` (alerta gravado). Falta conferir a chave.
+
+## Pendências
+1. Resolver o `401`: conferir a chave no painel (copiada inteira, ativa, do workspace certo) e salvá-la de novo.
+2. Conectar TikTok e YouTube **na Cut.Pro** (`autopilot cutpro run account.connectLink --input '{"platform":"tiktok"}'`).
+3. Criar a estratégia de cortes de GTA 6 e o template visual do canal.

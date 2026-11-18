@@ -6,6 +6,8 @@ import { DEFAULT_QUOTAS, ViceScaleMCPAdapter } from './vicescale/adapter.js';
 import { ClaudeBridgeTransport } from './vicescale/transports/bridge.js';
 import { HttpMcpTransport } from './vicescale/transports/http.js';
 import { SqliteStore } from './store/sqlite-store.js';
+import { CutProAdapter, DEFAULT_CUTPRO_QUOTAS, loadCutProCatalog } from './cutpro/adapter.js';
+import { CutProHttpTransport } from './cutpro/transport.js';
 
 export const loadConfig = (env = process.env) => ({
   transport: env.VICESCALE_TRANSPORT ?? 'bridge',
@@ -15,6 +17,9 @@ export const loadConfig = (env = process.env) => ({
   dryRun: env.AUTOPILOT_DRY_RUN ?? 'publish',
   timezone: env.AUTOPILOT_TIMEZONE ?? 'America/Sao_Paulo',
   quotas: env.AUTOPILOT_QUOTAS_JSON ? { ...DEFAULT_QUOTAS, ...JSON.parse(env.AUTOPILOT_QUOTAS_JSON) } : DEFAULT_QUOTAS,
+  cutproApiKey: env.CUTPRO_API_KEY ?? null,
+  cutproWorkspaceId: env.CUTPRO_WORKSPACE_ID ?? null,
+  cutproQuotas: env.CUTPRO_QUOTAS_JSON ? { ...DEFAULT_CUTPRO_QUOTAS, ...JSON.parse(env.CUTPRO_QUOTAS_JSON) } : DEFAULT_CUTPRO_QUOTAS,
 });
 
 export const createTransport = (config) => {
@@ -31,5 +36,12 @@ export const createAdapter = (config = loadConfig()) => {
     dryRun: config.dryRun,
     quotas: config.quotas,
   });
+  return { adapter, store, config };
+};
+
+export const createCutProAdapter = (config = loadConfig(), store = new SqliteStore(config.dbPath)) => {
+  const catalog = loadCutProCatalog();
+  const transport = new CutProHttpTransport({ catalog, apiKey: config.cutproApiKey, workspaceId: config.cutproWorkspaceId });
+  const adapter = new CutProAdapter({ transport, store, catalog, dryRun: config.dryRun, quotas: config.cutproQuotas });
   return { adapter, store, config };
 };

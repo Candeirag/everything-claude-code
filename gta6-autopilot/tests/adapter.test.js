@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { ViceScaleMCPAdapter, parseAccountStatus } from '../src/vicescale/adapter.js';
 import { ClaudeBridgeTransport } from '../src/vicescale/transports/bridge.js';
 import { SqliteStore } from '../src/store/sqlite-store.js';
-import { AuthError, TransientError } from '../src/vicescale/errors.js';
+import { AuthError, TransientError } from '../src/core/errors.js';
 
 // Dublê de transporte síncrono: registra chamadas e devolve respostas roteirizadas.
 const scriptedTransport = (script = {}) => {
@@ -68,7 +68,7 @@ test('leitura com erro transitório é repetida; erro de autenticação gera ale
   const second = setup(authTransport);
   const health = await second.adapter.checkHealth();
   assert.equal(health.state, 'failed');
-  assert.ok(second.store.getSetting('auth_alert'));
+  assert.ok(second.store.getSetting('vicescale:auth_alert'));
   assert.equal(second.store.lastHealth().ok, false);
 });
 
@@ -165,7 +165,7 @@ test('ponte Claude: falha de autenticação reportada pelo worker gera alerta', 
   const op = adapter.claimBridgedOperation();
   adapter.completeBridgedOperation(op.id, { error: 'Conector desconectado', authError: true });
   assert.equal(store.getOperation(op.id).state, 'failed');
-  assert.ok(store.getSetting('auth_alert'));
+  assert.ok(store.getSetting('vicescale:auth_alert'));
 });
 
 test('descoberta detecta ferramenta nova, removida e schema alterado', async () => {
@@ -179,7 +179,7 @@ test('descoberta detecta ferramenta nova, removida e schema alterado', async () 
   assert.deepEqual(diff.added, ['nova_ferramenta']);
   assert.ok(diff.removed.includes('publicar_template'));
   assert.deepEqual(diff.changed, ['listar_reposts']);
-  assert.ok(store.getSetting('catalog_drift_alert'));
+  assert.ok(store.getSetting('vicescale:catalog_drift_alert'));
   assert.equal(store.lastCatalogSnapshot().tools.length, 3);
 });
 

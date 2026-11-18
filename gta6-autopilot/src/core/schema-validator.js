@@ -5,7 +5,7 @@
 const SUPPORTED = new Set([
   '$schema', 'type', 'properties', 'required', 'additionalProperties', 'items',
   'enum', 'minimum', 'maximum', 'minLength', 'maxLength', 'minItems', 'maxItems',
-  'format', 'description', 'default',
+  'format', 'description', 'default', 'nullable', 'anyOf', 'pattern',
 ]);
 
 const typeOf = (value) => {
@@ -37,6 +37,19 @@ const validateNode = (schema, value, path, errors) => {
     }
   }
 
+  if (value === null && schema.nullable === true) return;
+
+  if (schema.anyOf) {
+    const branches = schema.anyOf.map((branch) => {
+      const branchErrors = [];
+      validateNode(branch, value, path, branchErrors);
+      return branchErrors;
+    });
+    if (!branches.some((branchErrors) => branchErrors.length === 0)) {
+      errors.push(`${path || '(raiz)'}: não corresponde a nenhuma das alternativas (${branches.map((b) => b[0]).join(' | ')})`);
+    }
+  }
+
   if (schema.type && !matchesType(value, schema.type)) {
     errors.push(`${path || '(raiz)'}: esperado ${schema.type}, recebido ${typeOf(value)}`);
     return;
@@ -55,6 +68,7 @@ const validateNode = (schema, value, path, errors) => {
     if (schema.minLength !== undefined && value.length < schema.minLength) errors.push(`${path}: mínimo ${schema.minLength} caracteres`);
     if (schema.maxLength !== undefined && value.length > schema.maxLength) errors.push(`${path}: máximo ${schema.maxLength} caracteres`);
     if (schema.format === 'uri' && !isUri(value)) errors.push(`${path}: URL inválida`);
+    if (schema.pattern && !new RegExp(schema.pattern).test(value)) errors.push(`${path}: formato inválido (esperado ${schema.pattern})`);
   }
 
   if (Array.isArray(value)) {
