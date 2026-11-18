@@ -21,6 +21,7 @@ const SAMPLES = {
   'monitor.start': { monitorId: '7413020011876610' },
   'monitor.stop': { monitorId: '7413020011876610' },
   'monitor.get': { monitorId: '7413020011876610' },
+  'monitor.broadcast': { monitorId: '7413020011876610', broadcastId: '318274651093' },
   'monitor.broadcasts': { monitorId: '7413020011876610', limit: 5 },
   'monitor.broadcastClips': { monitorId: '7413020011876610', broadcastId: '318274651093', minRating: 7 },
   'monitor.renderClip': { monitorId: '7413020011876610', broadcastId: '318274651093', clipId: '7412908412887301' },

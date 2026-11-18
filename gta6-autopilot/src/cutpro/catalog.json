@@ -1333,6 +1333,37 @@
       }
     },
     {
+      "name": "getBroadcast",
+      "method": "GET",
+      "path": "/monitors/{id}/broadcasts/{broadcastId}",
+      "summary": "Get a broadcast",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id",
+        "broadcastId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          },
+          "broadcastId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "broadcastId"
+        ]
+      }
+    },
+    {
       "name": "getConnectionLink",
       "method": "GET",
       "path": "/connections/link",

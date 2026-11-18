@@ -43,6 +43,7 @@ const OPERATIONS = {
   startMonitor: { risk: 'quota', quotaBucket: 'monitors', requiresRights: true, note: 'live cobra por bloco de 10 min' },
   stopMonitor: { risk: 'write' },
   listBroadcasts: { risk: 'read' },
+  getBroadcast: { risk: 'read' },
   listBroadcastClips: { risk: 'read' },
   renderBroadcastClip: { risk: 'quota', quotaBucket: 'renders' },
   createVideoUpload: { risk: 'write' },

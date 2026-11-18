@@ -43,6 +43,7 @@ export const CAPABILITIES = {
   'monitor.start': { tool: 'startMonitor', map: ({ monitorId }) => ({ id: monitorId }) },
   'monitor.stop': { tool: 'stopMonitor', map: ({ monitorId }) => ({ id: monitorId }) },
   'monitor.get': { tool: 'getMonitor', map: ({ monitorId }) => ({ id: monitorId }) },
+  'monitor.broadcast': { tool: 'getBroadcast', map: ({ monitorId, broadcastId }) => ({ id: monitorId, broadcastId }) },
   'monitor.broadcasts': { tool: 'listBroadcasts', map: ({ monitorId, limit }) => omitUndefined({ id: monitorId, limit }) },
   'monitor.broadcastClips': {
     tool: 'listBroadcastClips',
