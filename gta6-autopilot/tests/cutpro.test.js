@@ -24,6 +24,8 @@ const SAMPLES = {
   'monitor.broadcast': { monitorId: '7413020011876610', broadcastId: '318274651093' },
   'monitor.broadcasts': { monitorId: '7413020011876610', limit: 5 },
   'monitor.broadcastClips': { monitorId: '7413020011876610', broadcastId: '318274651093', minRating: 7 },
+  'monitor.applyTemplate': { monitorId: '7413020011876610', broadcastId: '318274651093', templateId: '7398110254410021', clipIds: ['7412908412887301'] },
+  'monitor.templateJob': { monitorId: '7413020011876610', broadcastId: '318274651093' },
   'monitor.renderClip': { monitorId: '7413020011876610', broadcastId: '318274651093', clipId: '7412908412887301' },
   'clip.submit': { videoId: '7412908365112823', startSeconds: 0, endSeconds: 600, strategyId: '7412908371004912' },
   'clip.submissionStatus': { videoId: '7412908365112823', submissionId: '7412908371004912' },

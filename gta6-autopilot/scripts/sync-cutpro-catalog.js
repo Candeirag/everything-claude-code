@@ -46,6 +46,8 @@ const OPERATIONS = {
   getBroadcast: { risk: 'read' },
   listBroadcastClips: { risk: 'read' },
   renderBroadcastClip: { risk: 'quota', quotaBucket: 'renders' },
+  applyBroadcastTemplate: { risk: 'quota', quotaBucket: 'renders' },
+  getBroadcastTemplateJob: { risk: 'read' },
   createVideoUpload: { risk: 'write' },
   completeVideoUpload: { risk: 'write' },
   listConnections: { risk: 'read' },

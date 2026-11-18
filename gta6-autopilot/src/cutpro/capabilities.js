@@ -50,6 +50,15 @@ export const CAPABILITIES = {
     map: ({ monitorId, broadcastId, minRating, limit, page }) =>
       omitUndefined({ id: monitorId, broadcastId, min_rating: minRating, limit, page, sort: 'rating', order: 'desc' }),
   },
+  'monitor.applyTemplate': {
+    tool: 'applyBroadcastTemplate',
+    map: ({ monitorId, broadcastId, templateId, clipIds }) => ({
+      id: monitorId,
+      broadcastId,
+      body: omitUndefined({ template_id: templateId, clip_ids: clipIds }),
+    }),
+  },
+  'monitor.templateJob': { tool: 'getBroadcastTemplateJob', map: ({ monitorId, broadcastId }) => ({ id: monitorId, broadcastId }) },
   'monitor.renderClip': {
     tool: 'renderBroadcastClip',
     map: ({ monitorId, broadcastId, clipId }) => ({ id: monitorId, broadcastId, clipId }),

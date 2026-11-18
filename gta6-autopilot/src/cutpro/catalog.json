@@ -39,6 +39,57 @@
       }
     },
     {
+      "name": "applyBroadcastTemplate",
+      "method": "POST",
+      "path": "/monitors/{id}/broadcasts/{broadcastId}/clips/apply_template",
+      "summary": "Apply template to broadcast clips",
+      "risk": "quota",
+      "quotaBucket": "renders",
+      "requiresRights": false,
+      "pathParams": [
+        "id",
+        "broadcastId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          },
+          "broadcastId": {
+            "type": "string"
+          },
+          "body": {
+            "type": "object",
+            "required": [
+              "template_id"
+            ],
+            "properties": {
+              "template_id": {
+                "pattern": "^[0-9]{1,19}$",
+                "type": "string"
+              },
+              "clip_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "broadcastId",
+          "body"
+        ]
+      }
+    },
+    {
       "name": "applyTemplate",
       "method": "POST",
       "path": "/videos/{videoId}/submissions/{submissionId}/apply_template",
@@ -1337,6 +1388,37 @@
       "method": "GET",
       "path": "/monitors/{id}/broadcasts/{broadcastId}",
       "summary": "Get a broadcast",
+      "risk": "read",
+      "quotaBucket": null,
+      "requiresRights": false,
+      "pathParams": [
+        "id",
+        "broadcastId"
+      ],
+      "queryParams": [],
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[0-9]{1,19}$",
+            "type": "string"
+          },
+          "broadcastId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "broadcastId"
+        ]
+      }
+    },
+    {
+      "name": "getBroadcastTemplateJob",
+      "method": "GET",
+      "path": "/monitors/{id}/broadcasts/{broadcastId}/clips/apply_template",
+      "summary": "Progress of a broadcast's template batch",
       "risk": "read",
       "quotaBucket": null,
       "requiresRights": false,
