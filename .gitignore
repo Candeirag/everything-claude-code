@@ -87,3 +87,6 @@ temp/
 # Generated lock files in tool subdirectories
 .opencode/package-lock.json
 .opencode/node_modules/
+
+# Community Intelligence data (pseudonymized community messages, never commit)
+.gta6-autopilot/

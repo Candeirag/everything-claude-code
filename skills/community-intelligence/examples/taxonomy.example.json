@@ -1,0 +1,19 @@
+{
+  "topics": [
+    {
+      "id": "photo-mode",
+      "label": "Modo foto e criação de conteúdo",
+      "keywords": ["modo foto", "photo mode", "replay editor", "rockstar editor", "camera livre"],
+      "relevance": 0.9,
+      "visualPotential": 1,
+      "risk": "normal"
+    },
+    {
+      "id": "creator-strategy",
+      "label": "Estratégia de criadores (TikTok/Shorts)",
+      "keywords": ["tiktok", "shorts", "algoritmo", "retencao", "gancho", "viralizar"],
+      "relevance": 0.4,
+      "visualPotential": 0.4
+    }
+  ]
+}

@@ -191,7 +191,7 @@ For manual install instructions see the README in the `rules/` folder.
 /plugin list everything-claude-code@everything-claude-code
 ```
 
-✨ **That's it!** You now have access to 25 agents, 108 skills, and 57 commands.
+✨ **That's it!** You now have access to 26 agents, 109 skills, and 58 commands.
 
 ---
 
@@ -276,6 +276,7 @@ everything-claude-code/
 |   |-- article-writing/            # Long-form writing in a supplied voice without generic AI tone (NEW)
 |   |-- content-engine/             # Multi-platform social content and repurposing workflows (NEW)
 |   |-- market-research/            # Source-attributed market, competitor, and investor research (NEW)
+|   |-- community-intelligence/     # Privacy-first community trend intelligence from WhatsApp group exports (NEW)
 |   |-- investor-materials/         # Pitch decks, one-pagers, memos, and financial models (NEW)
 |   |-- investor-outreach/          # Personalized fundraising outreach and follow-up (NEW)
 |   |-- continuous-learning/        # Auto-extract patterns from sessions (Longform Guide)
@@ -990,6 +991,7 @@ Skills at `.agents/skills/` are auto-loaded by Codex:
 | article-writing | Long-form writing from notes and voice references |
 | content-engine | Platform-native social content and repurposing |
 | market-research | Source-attributed market and competitor research |
+| community-intelligence | Community trend ranking, video suggestions and learning from authorized WhatsApp exports |
 | investor-materials | Decks, memos, models, and one-pagers |
 | investor-outreach | Personalized outreach, follow-ups, and intro blurbs |
 | backend-patterns | API design, database, caching |
@@ -1042,9 +1044,9 @@ The configuration is automatically detected from `.opencode/opencode.json`.
 
 | Feature | Claude Code | OpenCode | Status |
 |---------|-------------|----------|--------|
-| Agents | ✅ 25 agents | ✅ 12 agents | **Claude Code leads** |
-| Commands | ✅ 57 commands | ✅ 31 commands | **Claude Code leads** |
-| Skills | ✅ 108 skills | ✅ 37 skills | **Claude Code leads** |
+| Agents | ✅ 26 agents | ✅ 12 agents | **Claude Code leads** |
+| Commands | ✅ 58 commands | ✅ 31 commands | **Claude Code leads** |
+| Skills | ✅ 109 skills | ✅ 37 skills | **Claude Code leads** |
 | Hooks | ✅ 8 event types | ✅ 11 events | **OpenCode has more!** |
 | Rules | ✅ 29 rules | ✅ 13 instructions | **Claude Code leads** |
 | MCP Servers | ✅ 14 servers | ✅ Full | **Full parity** |

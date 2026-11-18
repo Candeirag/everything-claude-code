@@ -270,7 +270,8 @@
         "skills/content-engine",
         "skills/investor-materials",
         "skills/investor-outreach",
-        "skills/market-research"
+        "skills/market-research",
+        "skills/community-intelligence"
       ],
       "targets": [
         "claude",
