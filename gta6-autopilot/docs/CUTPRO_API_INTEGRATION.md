@@ -108,7 +108,7 @@ A primeira chave foi recusada (401). Depois que ela foi salva de novo, a autenti
 | Capacidade | Resultado |
 |---|---|
 | `account.workspace` (health) | ✅ plano **Gratuito** |
-| `account.connections` | ✅ só a conta de login (Google); **TikTok e YouTube ainda não conectados** |
+| `account.connections` | ✅ TikTok, YouTube, Instagram e Facebook do canal conectados (contas novas, 0 seguidores). Limite do plano Gratuito: **2 posts/dia por conta** |
 | `account.renderLimits` | ✅ 1080p, **com marca d'água**, 2 renders simultâneos, MP4 guardado por 12 h |
 | `publish.usage` | ✅ |
 | `strategy.list` | ✅ 3 prontas: Engajamento Rápido (30–90 s), Humor e Reações (25–60 s), Cortes de Podcast (120–300 s) |
@@ -118,6 +118,5 @@ A primeira chave foi recusada (401). Depois que ela foi salva de novo, a autenti
 Nenhum crédito foi gasto e nada foi publicado.
 
 ## Pendências
-1. Conectar TikTok e YouTube **na Cut.Pro** (`autopilot cutpro run account.connectLink --input '{"platform":"tiktok"}'`).
-2. Criar a estratégia de cortes de GTA 6 (exige plano com estratégias personalizadas; no Gratuito, usar "Humor e Reações" ou "Engajamento Rápido") e o template visual do canal.
-3. Plano pago antes de publicar: o Gratuito tem marca d'água e só 15 min/mês.
+1. Criar a estratégia de cortes de GTA 6 (exige plano com estratégias personalizadas; no Gratuito, usar "Humor e Reações" ou "Engajamento Rápido") e o template visual do canal.
+2. Plano pago antes de publicar: o Gratuito tem marca d'água e só 15 min/mês.
