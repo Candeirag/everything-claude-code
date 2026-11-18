@@ -1,0 +1,18 @@
+{
+  "name": "gta6-autopilot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Operação autônoma de conteúdo de GTA 6 sobre a ViceScale (via MCP).",
+  "type": "module",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "bin": {
+    "autopilot": "bin/autopilot.js"
+  },
+  "scripts": {
+    "test": "node --no-warnings --test \"tests/**/*.test.js\"",
+    "autopilot": "node --no-warnings bin/autopilot.js"
+  },
+  "license": "UNLICENSED"
+}

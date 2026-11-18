@@ -1,0 +1,557 @@
+{
+  "server": "ViceScale",
+  "capturedAt": "2026-11-18",
+  "source": "Schemas lidos do servidor MCP ViceScale conectado à sessão Claude Code (tools/list). Não editar à mão sem nova descoberta. Restrições extraídas só das descrições ficam em localRules.",
+  "tools": [
+    {
+      "name": "status",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Conta conectada: e-mail, plano, redes sociais conectadas (via Zernio) e nº de projetos Scale.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "buscar_perfil",
+      "risk": "read",
+      "quotaBucket": "scrap",
+      "summary": "Lista reels/vídeos recentes de um perfil PÚBLICO do Instagram com curtidas/comentários/plays e link.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "usuario": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "quantidade": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        },
+        "required": [
+          "usuario"
+        ]
+      }
+    },
+    {
+      "name": "buscar_fotos_perfil",
+      "risk": "read",
+      "quotaBucket": "scrap",
+      "summary": "Lista posts do feed (foto/carrossel/vídeo) de um perfil público do Instagram, ou resolve um link de post.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "usuario": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "quantidade": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          }
+        }
+      },
+      "localRules": {
+        "oneOf": [
+          {
+            "required": [
+              "usuario"
+            ]
+          },
+          {
+            "required": [
+              "url"
+            ]
+          }
+        ],
+        "why": "Derivado das descrições textuais do servidor (não está no schema JSON dele)."
+      }
+    },
+    {
+      "name": "resolver_video",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Resolve link de post/reel (Instagram/TikTok) para o arquivo MP4 real.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      }
+    },
+    {
+      "name": "baixar_video",
+      "risk": "quota",
+      "quotaBucket": "downloads",
+      "summary": "Baixa vídeo de link Instagram/TikTok para o Storage ViceScale; retorna storagePath temporário (apagado após render ou 24h).",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      }
+    },
+    {
+      "name": "listar_perfis_template",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Lista perfis (nome/@handle) salvos em Templates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "listar_estilos_texto",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Lista estilos de texto (fonte, traçado, cor) salvos em Templates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "sugerir_frases",
+      "risk": "quota",
+      "quotaBucket": "ai",
+      "summary": "Gera sugestões de frase/legenda curta (estilo tweet).",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "quantidade": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "tema"
+        ]
+      }
+    },
+    {
+      "name": "sugerir_headlines",
+      "risk": "quota",
+      "quotaBucket": "ai",
+      "summary": "Gera headlines/hooks para sobrepor em clipe de GTA (modo gta) ou frases avulsas (modo phrases).",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "tema": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "modo": {
+            "type": "string",
+            "enum": [
+              "gta",
+              "phrases"
+            ]
+          },
+          "quantidade": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "tema"
+        ]
+      }
+    },
+    {
+      "name": "criar_post_template",
+      "risk": "quota",
+      "quotaBucket": null,
+      "summary": "Monta post (Templates) a partir de vídeos já baixados e frases; retorna projectId.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "nome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "videos": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 30,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "storagePath": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "duracaoSegundos": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 600
+                }
+              },
+              "required": [
+                "storagePath"
+              ]
+            }
+          },
+          "frases": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 280
+            }
+          },
+          "estilo": {
+            "type": "string",
+            "enum": [
+              "twitter",
+              "meme",
+              "original"
+            ]
+          },
+          "modo": {
+            "type": "string",
+            "enum": [
+              "cartesian",
+              "cycle"
+            ]
+          },
+          "perfilId": {
+            "type": "string"
+          },
+          "estiloTextoId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "nome",
+          "videos"
+        ]
+      }
+    },
+    {
+      "name": "renderizar_post_template",
+      "risk": "quota",
+      "quotaBucket": "render",
+      "summary": "Dispara render assíncrono do post. Cota compartilhada Scale/Templates.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      }
+    },
+    {
+      "name": "status_post_template",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Status do post (draft/rendering/completed/failed) e link do vídeo pronto.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      }
+    },
+    {
+      "name": "listar_projetos_template",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Lista posts do Templates mais recentes, com status e link.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30
+          }
+        }
+      }
+    },
+    {
+      "name": "listar_projetos_scale",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Lista projetos Scale (variações de clipe) mais recentes, com status e link.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30
+          }
+        }
+      }
+    },
+    {
+      "name": "criar_repost",
+      "risk": "quota",
+      "quotaBucket": "repost",
+      "summary": "Cria projeto ViceRepost a partir de post de foto/carrossel do Instagram (não aceita vídeo).",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "required": [
+          "url"
+        ]
+      }
+    },
+    {
+      "name": "traduzir_legenda_repost",
+      "risk": "quota",
+      "quotaBucket": "ai",
+      "summary": "Traduz a legenda original para português e a define como ativa.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      }
+    },
+    {
+      "name": "reescrever_legenda_repost",
+      "risk": "quota",
+      "quotaBucket": "ai",
+      "summary": "Reescreve a legenda com IA (mesma ideia, palavras diferentes) e a define como ativa.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      }
+    },
+    {
+      "name": "traduzir_imagem_repost",
+      "risk": "quota",
+      "quotaBucket": "ai",
+      "summary": "Detecta texto dentro da imagem, apaga e desenha a tradução.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      }
+    },
+    {
+      "name": "status_repost",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Consulta repost: legenda ativa, status da tradução de imagem e link do resultado.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "projectId"
+        ]
+      }
+    },
+    {
+      "name": "listar_reposts",
+      "risk": "read",
+      "quotaBucket": null,
+      "summary": "Lista reposts (ViceRepost) mais recentes.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "limite": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 30
+          }
+        }
+      }
+    },
+    {
+      "name": "publicar_template",
+      "risk": "publish",
+      "quotaBucket": "publish",
+      "summary": "Publica/agenda o vídeo renderizado de um post do Templates em instagram/youtube/facebook. TikTok NÃO suportado via MCP. Sem agendarPara publica IMEDIATAMENTE.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plataforma": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "youtube",
+              "facebook"
+            ]
+          },
+          "legenda": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          },
+          "agendarPara": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          },
+          "variationIndex": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "projectId",
+          "plataforma",
+          "legenda"
+        ]
+      },
+      "localRules": {
+        "dependentRequired": {
+          "agendarPara": [
+            "timezone"
+          ]
+        },
+        "patterns": {
+          "agendarPara": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$"
+        },
+        "why": "Derivado das descrições textuais do servidor (não está no schema JSON dele)."
+      }
+    },
+    {
+      "name": "publicar_repost",
+      "risk": "publish",
+      "quotaBucket": "publish",
+      "summary": "Publica/agenda a imagem do repost em instagram/youtube/facebook. TikTok NÃO suportado.",
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "projectId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "plataforma": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "youtube",
+              "facebook"
+            ]
+          },
+          "legenda": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "agendarPara": {
+            "type": "string"
+          },
+          "timezone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "projectId",
+          "plataforma"
+        ]
+      },
+      "localRules": {
+        "dependentRequired": {
+          "agendarPara": [
+            "timezone"
+          ]
+        },
+        "patterns": {
+          "agendarPara": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$"
+        },
+        "why": "Derivado das descrições textuais do servidor (não está no schema JSON dele)."
+      }
+    }
+  ]
+}
