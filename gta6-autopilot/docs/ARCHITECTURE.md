@@ -48,12 +48,20 @@ A ViceScale não documenta endpoint MCP nem token de API: o conector é OAuth da
 ### D6 — Privacidade
 Resultados e auditoria passam por `redact`: tokens, `Bearer …` e e-mails são removidos antes de gravar. O e-mail da conta retornado por `status` nunca é persistido.
 
+### D7 — Cut.Pro como plataforma principal, ViceScale como apoio (2026-11-18)
+Decisão do dono do projeto após a análise em `docs/CUTPRO_API_INTEGRATION.md`.
+- **Cut.Pro**: monitoramento de canais e lives autorizados, cortes com IA (nota 0–10, estratégia própria de GTA 6), legendas PT, render, publicação no **TikTok e YouTube** e agendamento. API REST com chave: o backend chama direto da nuvem, sem ponte.
+- **ViceScale**: apoio. Headlines e frases de GTA (`sugerir_headlines`/`sugerir_frases`), templates e variações quando agregarem valor. Continua acessada só pelo `ViceScaleMCPAdapter`.
+- Próximo componente: `CutProAdapter`, com as mesmas proteções do adaptador ViceScale (validação, idempotência, dry-run de publicação, direitos de uso, emergência, cotas, auditoria). Também respeita `Retry-After` e os códigos `{ code, extra }`.
+- Consequência: a ponte via sessão Claude deixa de ser caminho crítico. Só as funções de apoio da ViceScale dependem dela.
+
 ## Estado por fase
 
 | Fase | Status | Critério |
 |---|---|---|
 | 1 — Integração | ✅ Concluída | Conexão funcional testada ponta a ponta e documentação completa |
-| 2 — Produção | ⏳ Próxima | Um conteúdo autorizado percorre o pipeline até ficar pronto para publicar |
+| 1b — Integração Cut.Pro | ⏳ Próxima | `CutProAdapter` testado contra a API real (precisa de chave e de liberar `api.cut.pro` na rede) |
+| 2 — Produção | ⏳ | Um conteúdo autorizado percorre o pipeline até ficar pronto para publicar |
 | 3 — Publicação | ⏳ | Publicação real confirmada (exige YouTube conectado e autorização do dono) |
 | 4 — Inteligência | ⏳ | Métricas reais (YouTube Analytics API) ajustando a estratégia |
 | 5 — Operação autônoma | ⏳ | Postgres + tarefa agendada na nuvem + painel + alertas |

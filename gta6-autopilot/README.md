@@ -1,6 +1,6 @@
 # GTA 6 Autopilot
 
-Operação autônoma de conteúdo de GTA 6 (TikTok e YouTube Shorts, em português) sobre a [ViceScale](https://vicescale.com), integrada via MCP.
+Operação autônoma de conteúdo de GTA 6 (TikTok e YouTube Shorts, em português). [Cut.Pro](https://cut.pro) faz cortes e publicação via API; a [ViceScale](https://vicescale.com), via MCP, apoia com headlines e templates.
 
 **Status: Fase 1 (integração ViceScale) concluída.** Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
@@ -31,6 +31,7 @@ Numa sessão Claude Code aberta nesta pasta, rode `/vicescale-worker` para execu
 ## Documentação
 - [docs/AUDIT.md](docs/AUDIT.md): auditoria inicial e riscos
 - [docs/VICESCALE_MCP_INTEGRATION.md](docs/VICESCALE_MCP_INTEGRATION.md): ferramentas reais, limitações e testes
+- [docs/CUTPRO_API_INTEGRATION.md](docs/CUTPRO_API_INTEGRATION.md): Cut.Pro, plataforma principal de cortes e publicação
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): decisões técnicas e plano das fases
 
 ## Estrutura

@@ -132,7 +132,7 @@ test('botão de emergência bloqueia publicações mesmo fora do dry-run', async
 
 test('TikTok e métricas retornam indisponível com alternativa, sem simular', async () => {
   const { adapter } = setup(scriptedTransport());
-  await assert.rejects(adapter.run('publish.tiktok', {}), (error) => error.code === 'CAPABILITY_UNAVAILABLE' && /manual/.test(error.alternative));
+  await assert.rejects(adapter.run('publish.tiktok', {}), (error) => error.code === 'CAPABILITY_UNAVAILABLE' && /Cut\.Pro/.test(error.alternative));
   await assert.rejects(adapter.run('analytics.postMetrics', {}), /indisponível/);
 });
 

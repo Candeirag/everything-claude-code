@@ -83,11 +83,11 @@ export const CAPABILITIES = {
 export const UNAVAILABLE = {
   'publish.tiktok': {
     reason: 'publicar_template/publicar_repost aceitam apenas instagram, youtube e facebook; TikTok exige consentimento no painel.',
-    alternative: 'manual-queue: item fica na fila "TikTok manual" com vídeo + legenda prontos para publicar em vicescale.com/integracoes.',
+    alternative: 'Cut.Pro POST /posts (TikTok suportado na API; ver docs/CUTPRO_API_INTEGRATION.md). Sem Cut.Pro: fila manual pelo painel ViceScale.',
   },
   'analytics.postMetrics': {
     reason: 'Nenhuma ferramenta MCP retorna visualizações, curtidas, retenção ou receita.',
-    alternative: 'YouTube Data API v3 + YouTube Analytics API (OAuth do canal).',
+    alternative: 'Cut.Pro (a confirmar no openapi.json) ou YouTube Analytics API / TikTok Display API.',
   },
   'trends.tiktok': {
     reason: 'Não há ferramenta de tendências do TikTok.',
@@ -103,7 +103,7 @@ export const UNAVAILABLE = {
   },
   'media.upload': {
     reason: 'Vídeos só entram via link de Instagram/TikTok (baixar_video); não há upload de arquivo próprio.',
-    alternative: 'Subir gameplay próprio pelo painel ViceScale ou publicar o clipe próprio num link e importar.',
+    alternative: 'Cut.Pro POST /videos/upload (arquivo próprio, inclusive MP4 já editado com destination "editor").',
   },
   'publish.listScheduled': {
     reason: 'Não há ferramenta para listar, cancelar ou reprogramar agendamentos.',
