@@ -2,7 +2,7 @@
 
 Operação autônoma de conteúdo de GTA 6 (TikTok e YouTube Shorts, em português). [Cut.Pro](https://cut.pro) faz cortes e publicação via API; a [ViceScale](https://vicescale.com), via MCP, apoia com headlines e templates.
 
-**Status: Fase 1 concluída (ViceScale); Fase 1b (Cut.Pro) com código pronto, aguardando chave válida.** Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+**Status: Fase 1 concluída: ViceScale (apoio) e Cut.Pro (principal) integrados e testados contra os serviços reais.** Ver [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Requisitos
 - Node.js ≥ 22.5 (sem dependências npm)

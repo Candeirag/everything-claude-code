@@ -103,10 +103,21 @@ autopilot cutpro run source.analyze --input '{"url":"https://www.youtube.com/wat
 Neste container de desenvolvimento a chave é injetada pelo proxy: use `CUTPRO_API_KEY=proxy-injected NODE_USE_ENV_PROXY=1 NODE_EXTRA_CA_CERTS=/root/.ccr/ca-bundle.crt`. O `fetch` do Node só usa o proxy com `NODE_USE_ENV_PROXY=1`.
 
 ## Estado do teste real (18/11/2026)
-- Rede: ✅ `api.cut.pro` liberada no ambiente `gta6-autopilot`; contrato baixado.
-- Autenticação: ❌ a API responde `401 UNAUTHORIZED` à chave salva. O caminho adaptador → proxy → API funciona e o erro é classificado como `AUTH` (alerta gravado). Falta conferir a chave.
+A primeira chave foi recusada (401). Depois que ela foi salva de novo, a autenticação passou. Só leituras foram feitas:
+
+| Capacidade | Resultado |
+|---|---|
+| `account.workspace` (health) | ✅ plano **Gratuito** |
+| `account.connections` | ✅ só a conta de login (Google); **TikTok e YouTube ainda não conectados** |
+| `account.renderLimits` | ✅ 1080p, **com marca d'água**, 2 renders simultâneos, MP4 guardado por 12 h |
+| `publish.usage` | ✅ |
+| `strategy.list` | ✅ 3 prontas: Engajamento Rápido (30–90 s), Humor e Reações (25–60 s), Cortes de Podcast (120–300 s) |
+| `template.list` | ✅ nenhum template próprio; 169 públicos, incluindo um "template GTA 6 games" (9:16) |
+| `account.connectLink` (tiktok, youtube) | ✅ links de conexão gerados |
+
+Nenhum crédito foi gasto e nada foi publicado.
 
 ## Pendências
-1. Resolver o `401`: conferir a chave no painel (copiada inteira, ativa, do workspace certo) e salvá-la de novo.
-2. Conectar TikTok e YouTube **na Cut.Pro** (`autopilot cutpro run account.connectLink --input '{"platform":"tiktok"}'`).
-3. Criar a estratégia de cortes de GTA 6 e o template visual do canal.
+1. Conectar TikTok e YouTube **na Cut.Pro** (`autopilot cutpro run account.connectLink --input '{"platform":"tiktok"}'`).
+2. Criar a estratégia de cortes de GTA 6 (exige plano com estratégias personalizadas; no Gratuito, usar "Humor e Reações" ou "Engajamento Rápido") e o template visual do canal.
+3. Plano pago antes de publicar: o Gratuito tem marca d'água e só 15 min/mês.

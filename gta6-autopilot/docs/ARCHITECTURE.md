@@ -60,7 +60,7 @@ Decisão do dono do projeto após a análise em `docs/CUTPRO_API_INTEGRATION.md`
 | Fase | Status | Critério |
 |---|---|---|
 | 1 — Integração | ✅ Concluída | Conexão funcional testada ponta a ponta e documentação completa |
-| 1b — Integração Cut.Pro | 🟡 Código pronto | `CutProAdapter` + 13 testes; falta o teste real (API recusa a chave: 401) |
+| 1b — Integração Cut.Pro | ✅ Concluída | `CutProAdapter` testado contra a API real (leituras); falta conectar TikTok/YouTube na Cut.Pro |
 | 2 — Produção | ⏳ | Um conteúdo autorizado percorre o pipeline até ficar pronto para publicar |
 | 3 — Publicação | ⏳ | Publicação real confirmada (exige YouTube conectado e autorização do dono) |
 | 4 — Inteligência | ⏳ | Métricas reais (YouTube Analytics API) ajustando a estratégia |
